@@ -1,12 +1,13 @@
 import {SiteContentProvider,useSiteContent} from './siteContent'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { ArrowRight, Check, Loader2, Menu, MessageCircle, X, LogIn, Eye } from 'lucide-react'
 import { site, messages, subjects, plans, singleLesson, brl } from './config'
 import { wa, emptyLead, validate, submitLead, leadToWhatsApp, type Lead, type SubmitResult } from './lib'
 import HeroGradient from './components/HeroGradient'
+import {useProgressiveReveal} from './hooks/useProgressiveReveal'
 
-export const btn = 'inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2F7BFF] to-[#0A0A9E] px-6 py-3.5 text-sm font-medium text-white transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(47,123,255,0.4)] active:scale-95'
-export const btnGhost = 'inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3.5 text-sm font-medium text-white transition-all hover:bg-white/10 backdrop-blur-sm'
+export const btn = 'inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2F7BFF] to-[#0A0A9E] px-6 py-3.5 text-sm font-medium text-white transition-[transform,box-shadow,opacity] duration-300 ease-out hover:shadow-[0_0_20px_rgba(47,123,255,0.3)] active:scale-[.98] motion-safe:hover:-translate-y-0.5 disabled:opacity-60'
+export const btnGhost = 'inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3.5 text-sm font-medium text-white transition-[background-color,border-color,transform] duration-300 ease-out hover:border-white/40 hover:bg-white/10 motion-safe:hover:-translate-y-0.5 active:scale-[.98]'
 const Wrap = ({ children, className = '' }: { children: ReactNode; className?: string }) => <div className={`mx-auto w-full max-w-6xl px-5 sm:px-8 ${className}`}>{children}</div>
 const Eyebrow = ({ children, light }: { children: ReactNode; light?: boolean }) => <p className={`text-xs font-medium uppercase tracking-[.2em] ${light ? 'text-white/50' : 'text-[#3b9ce2]'}`}>{children}</p>
 
@@ -14,9 +15,9 @@ const Eyebrow = ({ children, light }: { children: ReactNode; light?: boolean }) 
 
 /** Marca provisória, só tipografia. Para trocar pela logo definitiva: ponha /public/logo.svg e defina LOGO_SRC. */
 const LOGO_SRC = ''
-function Brand({ className = 'text-2xl' }: { className?: string }) {
+function Brand({ className = 'text-2xl', compact=false }: { className?: string; compact?: boolean }) {
   if (LOGO_SRC) return <img src={LOGO_SRC} alt={site.name} className="h-8 w-auto" />
-  return <span className={`font-serif tracking-tight whitespace-nowrap ${className}`}>Aegis<span className="text-brass"> Educational</span></span>
+  return <span className={`font-serif tracking-tight whitespace-nowrap ${className}`}>Aegis<span className={compact ? 'hidden text-brass sm:inline' : 'text-brass'}> Educational</span></span>
 }
 
 export function Cta({ message, children, className = btn, icon = true }: { message: string; children: ReactNode; className?: string; icon?: boolean }) {
@@ -25,22 +26,23 @@ export function Cta({ message, children, className = btn, icon = true }: { messa
   return <a href={l.href} {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={className}>{children}{icon && <ArrowRight size={16} aria-hidden />}</a>
 }
 
-const nav: [string, string][] = [['Como funciona', '#como-funciona'], ['Disciplinas', '#disciplinas'], ['Planos', '#planos'], ['Dúvidas', '#duvidas'], ['Área do responsável', '/responsavel']]
+const nav: [string, string][] = [['Como funciona', '#como-funciona'], ['Disciplinas', '#disciplinas'], ['Planos', '#planos'], ['Dúvidas', '#duvidas']]
 
 function Header() {
   const [open, setOpen] = useState(false)
+  useEffect(()=>{if(!open)return;const onEscape=(e:KeyboardEvent)=>{if(e.key==='Escape')setOpen(false)};document.addEventListener('keydown',onEscape);return()=>document.removeEventListener('keydown',onEscape)},[open])
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur">
       <Wrap className="flex h-16 items-center justify-between">
-        <a href="/" aria-label="Aegis Educational, início"><Brand /></a>
+        <a href="/" aria-label="Aegis Educational, início"><Brand className="text-lg sm:text-2xl" compact /></a>
         <nav aria-label="Principal" className="hidden items-center gap-4 xl:flex">
           {nav.map(([n, h]) => <a key={h} href={h} className="text-sm text-white/70 hover:text-[#3b9ce2] transition-colors">{n}</a>)}
 <a href="/responsavel" className={btnGhost+' !px-4 !py-2.5'}><LogIn size={15} aria-hidden />Acessar portal</a>
           <a href="#diagnostico" className={btn + ' !py-2.5'}>Solicitar diagnóstico</a>
         </nav>
-        <div className="flex items-center gap-2 xl:hidden"><a href="/responsavel" className="inline-flex items-center gap-2 rounded-full border border-[#3b9ce2]/50 bg-[#2F7BFF]/10 px-3 py-2 text-xs font-semibold text-white sm:px-4 sm:text-sm"><LogIn size={16} aria-hidden/>Área do responsável</a><button className="rounded-full p-2 text-white" aria-expanded={open} aria-controls="menu-mobile" aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button></div>
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2 xl:hidden"><a href="/responsavel" className="inline-flex items-center gap-1.5 rounded-full border border-[#3b9ce2]/50 bg-[#2F7BFF]/10 px-2.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#2F7BFF]/20 sm:px-4 sm:text-sm"><LogIn size={16} aria-hidden/><span className="sm:hidden">Portal</span><span className="hidden sm:inline">Área do responsável</span></a><button className="rounded-full p-2 text-white" aria-expanded={open} aria-controls="menu-mobile" aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button></div>
       </Wrap>
-      {open && <nav id="menu-mobile" aria-label="Menu móvel" className="border-t border-white/10 bg-black xl:hidden"><Wrap className="flex flex-col py-2">
+      {open && <nav id="menu-mobile" aria-label="Menu móvel" className="aegis-menu-enter max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-white/10 bg-black xl:hidden"><Wrap className="flex flex-col py-2">
         {nav.map(([n, h]) => <a key={h} href={h} onClick={() => setOpen(false)} className="border-b border-white/10 py-4 font-serif text-lg text-white">{n}</a>)}
         <a href="#diagnostico" onClick={() => setOpen(false)} className={btn + ' my-5'}>Solicitar diagnóstico</a>
       </Wrap></nav>}
@@ -54,16 +56,16 @@ function Hero() {
     <section className="relative overflow-hidden py-20 sm:py-32 lg:py-40">
       <HeroGradient />
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.7) 38%, rgba(0,0,0,.15) 75%, rgba(0,0,0,0) 100%), linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,0) 25%), linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 12%)' }} />
-      <Wrap className="relative z-10 grid gap-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:gap-20">
-        <div>
+      <Wrap className="relative z-10 grid min-w-0 gap-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:gap-20">
+        <div className="min-w-0">
           <Eyebrow>Aegis Educational · Acompanhamento de Elite</Eyebrow>
-          <h1 className="mt-6 max-w-3xl text-5xl leading-[1.1] sm:text-6xl lg:text-7xl font-bold">
+          <h1 className="aegis-intro mt-6 max-w-3xl text-[2.1rem] leading-[1.1] min-[370px]:text-5xl sm:text-6xl lg:text-7xl font-bold">
             {content.heroTitle}
           </h1>
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-white/70 sm:text-xl">
+          <p className="aegis-intro aegis-intro-delayed mt-8 max-w-xl text-lg leading-relaxed text-white/70 sm:text-xl">
             {content.heroDescription}
           </p>
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+          <div className="mt-10 flex flex-col flex-wrap gap-3 sm:flex-row sm:gap-4">
             <a href="#diagnostico" className={btn}>Solicitar diagnóstico gratuito <ArrowRight size={16} aria-hidden /></a>
             <a href="#planos" className={btnGhost}>Ver planos e valores</a>
             <a href="/responsavel" className={btnGhost}><LogIn size={17} aria-hidden />Sou responsável</a>
@@ -71,7 +73,7 @@ function Hero() {
           <p className="mt-6 text-sm text-white/40">Resposta personalizada via WhatsApp.</p>
           <a href="/responsavel/exemplo" className="mt-5 inline-flex items-center gap-2 text-sm text-[#8bbaff] underline underline-offset-4 hover:text-white"><Eye size={16} aria-hidden/>Conhecer a área do responsável — demonstração fictícia</a>
         </div>
-        <aside className="glass-card rounded-2xl p-8 shadow-2xl sm:p-10">
+        <aside className="aegis-card glass-card rounded-2xl p-6 shadow-2xl sm:p-10">
           <p className="text-xs uppercase tracking-widest text-[#3b9ce2] font-bold">O Método Aégis</p>
           <ul className="mt-8 space-y-6">
             {[['Diagnóstico', 'Entendemos a série, a dificuldade e o objetivo antes de indicar o professor.'], ['Match de Perfil', 'A escolha parte do perfil do aluno, não da agenda livre.'], ['Foco Individual', 'Exclusividade total: só o aluno e o professor.'], ['Transparência Real', 'A família sabe exatamente o que foi trabalhado e o que vem a seguir.']].map(([t, d]) => (
@@ -90,7 +92,7 @@ function Hero() {
 function Problem() {
   const items = [['Uma boa aula isolada não basta.', 'Sem continuidade, cada aula recomeça do zero e o progresso se perde entre uma semana e outra.'], ['Cada dificuldade pede um caminho.', 'Falta de base, insegurança em prova e pressa na interpretação não se resolvem do mesmo jeito.'], ['A família precisa enxergar o andamento.', 'Sem informação clara, decidir se vale continuar vira intuição.']]
   return (
-    <section className="border-b border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
+    <section data-aegis-reveal className="border-b border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
       <h2 className="text-4xl leading-tight sm:text-5xl lg:sticky lg:top-28 lg:self-start">Uma aula particular não resolve, sozinha, o problema do aluno.</h2>
       <ol className="divide-y divide-line">{items.map(([t, d]) => <li key={t} className="py-7 first:pt-0"><h3 className="text-2xl">{t}</h3><p className="mt-2 max-w-lg leading-relaxed text-graphite">{d}</p></li>)}</ol>
     </Wrap></section>
@@ -100,7 +102,7 @@ function Problem() {
 function How() {
   const steps = [['Você nos conta', 'Preenche o diagnóstico (2 minutos) ou chama no WhatsApp.'], ['Conversamos', 'Entendemos o momento do aluno, a rotina e a urgência.'], ['Indicamos o professor', 'Escolha pelo perfil do aluno e pela disciplina.'], ['Definimos o plano', 'Frequência e formato combinados com a família.'], ['Começam as aulas', 'Individuais, por videochamada, com retorno ao responsável.']]
   return (
-    <section id="como-funciona" className="bg-ink py-20 text-paper sm:py-24"><Wrap>
+    <section data-aegis-reveal id="como-funciona" className="bg-ink py-20 text-paper sm:py-24"><Wrap>
       <Eyebrow light>Da primeira conversa à primeira aula</Eyebrow>
       <h2 className="mt-3 max-w-3xl text-4xl leading-tight sm:text-5xl">Você não compra uma aula. Contrata um acompanhamento.</h2>
       <ol className="relative mt-14 grid gap-8 lg:grid-cols-5 lg:gap-6">
@@ -114,9 +116,9 @@ function How() {
 function Subjects() {
   const d: Record<string, string> = { 'Matemática': 'Do reforço de base à resolução de problemas mais exigentes.', 'Física': 'Conceito, modelagem e cálculo, sem decorar fórmulas soltas.', 'Química': 'Da leitura de enunciados ao raciocínio quantitativo.' }
   return (
-    <section id="disciplinas" className="py-20 sm:py-24"><Wrap>
+    <section data-aegis-reveal id="disciplinas" className="py-20 sm:py-24"><Wrap>
       <h2 className="max-w-3xl text-4xl leading-tight sm:text-5xl">Disciplinas</h2>
-      <div className="mt-10 grid gap-px overflow-hidden rounded-sm border border-line bg-line md:grid-cols-3">{subjects.map(s => <div key={s} className="bg-[#070a14] p-8"><h3 className="text-2xl">{s}</h3><p className="mt-3 leading-relaxed text-graphite">{d[s]}</p></div>)}</div>
+      <div className="mt-10 grid gap-px overflow-hidden rounded-sm border border-line bg-line md:grid-cols-3">{subjects.map(s => <div key={s} className="aegis-card bg-[#070a14] p-8"><h3 className="text-2xl">{s}</h3><p className="mt-3 leading-relaxed text-graphite">{d[s]}</p></div>)}</div>
       <p className="mt-6 max-w-2xl text-sm text-mute">Outra disciplina? Conte no diagnóstico e verificamos se conseguimos atender.</p>
     </Wrap></section>
   )
@@ -124,7 +126,7 @@ function Subjects() {
 
 function Teachers() {
   return (
-    <section id="professores" className="border-y border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">
+    <section data-aegis-reveal id="professores" className="border-y border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">
       <h2 className="text-4xl leading-tight sm:text-5xl">Você não escolhe sozinho. Nós indicamos.</h2>
       <div className="space-y-4 text-lg leading-relaxed text-graphite">
         <p>A Aegis Educational seleciona o professor a partir do aluno: série, disciplina, dificuldade e objetivo. Não pela primeira agenda livre.</p>
@@ -137,7 +139,7 @@ function Teachers() {
 function Plans() {
   const content=useSiteContent()
   const list=content.plans
-  if(!content.plansVisible||!list.length)return <section id="planos" className="py-20"><Wrap><h2 className="text-4xl">Um plano para o momento do aluno</h2><p className="my-5 text-graphite">Converse com a equipe para conhecer as opções e condições de acompanhamento.</p><Cta message={messages.general}>Consultar planos</Cta></Wrap></section>
+  if(!content.plansVisible||!list.length)return <section data-aegis-reveal id="planos" className="py-20"><Wrap><h2 className="text-4xl">Um plano para o momento do aluno</h2><p className="my-5 text-graphite">Converse com a equipe para conhecer as opções e condições de acompanhamento.</p><Cta message={messages.general}>Consultar planos</Cta></Wrap></section>
   return (
     <section id="planos" className="py-20 sm:py-24"><Wrap>
       <Eyebrow>Planos mensais e aula avulsa</Eyebrow>
@@ -178,7 +180,7 @@ function Faq() {
   if(!content.faqVisible)return null
   const faq=content.faq.map(f=>[f.question,f.answer])
   return (
-    <section id="duvidas" className="border-t border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
+    <section data-aegis-reveal id="duvidas" className="border-t border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
       <h2 className="text-4xl leading-tight sm:text-5xl">Perguntas frequentes</h2>
       <div className="divide-y divide-line border-y border-line">{faq.map(([q, a]) => <details key={q} className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-serif text-xl">{q}<span aria-hidden className="text-2xl text-brass transition-transform group-open:rotate-45">+</span></summary><p className="mt-3 max-w-xl leading-relaxed text-graphite">{a}</p></details>)}</div>
     </Wrap></section>
@@ -252,7 +254,7 @@ function LeadForm() {
 
 function Diagnostic() {
   return (
-    <section id="diagnostico" className="border-t border-line py-20 sm:py-28"><Wrap className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
+    <section data-aegis-reveal id="diagnostico" className="border-t border-line py-20 sm:py-28"><Wrap className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
       <div>
         <Eyebrow>Diagnóstico inicial</Eyebrow>
         <h2 className="mt-3 text-4xl leading-tight sm:text-5xl">Conte-nos o momento do aluno.</h2>
@@ -308,13 +310,14 @@ function Privacy() {
 }
 
 function PublicApp() {
+  useProgressiveReveal()
   if (location.pathname.replace(/\/$/, '') === '/privacidade') return <><Header /><Privacy /><Footer /></>
   return (
     <>
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:p-3 focus:text-black">Ir para o conteúdo</a>
       <Header />
       <main id="conteudo"><Hero /><Problem /><How /><Subjects /><Teachers /><Plans /><Faq /><Diagnostic /></main>
-      <Footer /><StickyBar />
+      <Footer /><div className="h-20 xl:hidden" aria-hidden="true" /><StickyBar />
     </>
   )
 }
