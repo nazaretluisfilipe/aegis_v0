@@ -28,3 +28,19 @@ test('site publico original nao importou portal',async()=>{
  const source=await read('src/App.tsx')
  assert.doesNotMatch(source,/ResponsiblePortal|supabaseAdmin|lesson_packages/)
 })
+
+test('homepage oferece acesso explícito ao responsável e demonstração',async()=>{
+ const source=await read('src/App.tsx')
+ assert.match(source,/Área do responsável/)
+ assert.match(source,/href="\/responsavel"/)
+ assert.match(source,/href="\/responsavel\/exemplo"/)
+})
+test('demonstração pública não consulta dados reais nem contém credenciais',async()=>{
+ const source=await read('src/responsavel/PortalExample.tsx')
+ assert.match(source,/DEMONSTRAÇÃO FICTÍCIA/)
+ assert.doesNotMatch(source,/supabaseAdmin|auth\.admin|service_role|createClient/)
+})
+test('rota pública de exemplo não exige autenticação',async()=>{
+ const source=await read('src/main.tsx')
+ assert.match(source,/location\.pathname\.startsWith\('\/responsavel\/exemplo'\)/)
+})
