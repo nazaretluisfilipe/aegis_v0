@@ -156,4 +156,4 @@ a, button, input, select, textarea { touch-action: manipulation; }
 }
 
 /* Palavras longas não podem alargar grades em telas estreitas. */
-h1, h2, h3, h4 { overflow-wrap: anywhere; }
+h1, h2, h3, h4 { overflow-wrap: break-word; word-break: normal; }
