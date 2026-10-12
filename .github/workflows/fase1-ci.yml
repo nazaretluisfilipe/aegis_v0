@@ -1,7 +1,7 @@
 name: Aegis - verificacao da Fase 1
 on:
   push:
-    branches: [entrega-admin-etapa1]
+    branches: [entrega-admin-etapa1, desenvolvimento-portal-responsavel]
   workflow_dispatch:
 jobs:
   verificar:
