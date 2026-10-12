@@ -8,7 +8,7 @@ type Material={id:string;lesson_id:string;title:string;storage_path:string}
 export default function ResponsiblePortal(){
  const [auth,setAuth]=useState<'loading'|'signed-out'|'ready'|'denied'|'error'>('loading')
  const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('')
- const [familyId,setFamilyId]=useState(''),[students,setStudents]=useState<Student[]>([]),[packages,setPackages]=useState<Package[]>([]),[lessons,setLessons]=useState<Lesson[]>([]),[materials,setMaterials]=useState<Material[]>([])
+ const [students,setStudents]=useState<Student[]>([]),[packages,setPackages]=useState<Package[]>([]),[lessons,setLessons]=useState<Lesson[]>([]),[materials,setMaterials]=useState<Material[]>([])
  useEffect(()=>{
   if(!db){setAuth('error');return}
   const client=db
@@ -31,16 +31,16 @@ export default function ResponsiblePortal(){
    if(!mounted)return
    if(s.error||p.error||l.error||m.error){setAuth('error');return}
    const retrieved=(l.data||[]) as Lesson[]
-   setFamilyId(family);setStudents((s.data||[]) as Student[]);setPackages((p.data||[]) as Package[]);setLessons(retrieved)
+   setStudents((s.data||[]) as Student[]);setPackages((p.data||[]) as Package[]);setLessons(retrieved)
    setMaterials(((m.data||[]) as Material[]).filter(mat=>retrieved.some(lesson=>lesson.id===mat.lesson_id)))
    setAuth('ready')
   }
-  const {data:subscription}=client.auth.onAuthStateChange(()=>{void refresh()})
+  const {data:subscription}=client.auth.onAuthStateChange(()=>{queueMicrotask(()=>{void refresh()})})
   void refresh()
   return ()=>{mounted=false;subscription.subscription.unsubscribe()}
  },[])
  async function login(e:FormEvent){e.preventDefault();if(!db)return;setBusy(true);setError('');const {error:err}=await db.auth.signInWithPassword({email:email.trim(),password});if(err)setError('Não foi possível entrar. Confira e-mail, senha e confirmação da conta.');setBusy(false)}
- async function logout(){await db?.auth.signOut();setAuth('signed-out');setFamilyId('');setLessons([]);setStudents([]);setPackages([]);setMaterials([])}
+ async function logout(){await db?.auth.signOut();setAuth('signed-out');setLessons([]);setStudents([]);setPackages([]);setMaterials([])}
  async function download(m:Material){
   if(!db)return
   const {data,error:err}=await db.storage.from('aegis-lesson-materials').createSignedUrl(m.storage_path,60)
