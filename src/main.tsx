@@ -8,6 +8,7 @@ const AdminApp = lazy(() => import('./admin/AdminApp'))
 const ResponsiblePortal = lazy(() => import('./responsavel/ResponsiblePortal'))
 const PasswordRecovery = lazy(() => import('./responsavel/PasswordRecovery'))
 const isAdminRoute = /^\/admin(\/|$)/.test(location.pathname)
+const isResponsibleRoute = /^\/responsavel(\/|$)/.test(location.pathname)
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
