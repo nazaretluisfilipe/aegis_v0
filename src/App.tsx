@@ -1,5 +1,5 @@
 import {SiteContentProvider,useSiteContent} from './siteContent'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { ArrowRight, Check, Loader2, Menu, MessageCircle, X, LogIn, Eye } from 'lucide-react'
 import { site, messages, subjects, plans, singleLesson, brl } from './config'
 import { wa, emptyLead, validate, submitLead, leadToWhatsApp, type Lead, type SubmitResult } from './lib'
@@ -26,10 +26,11 @@ export function Cta({ message, children, className = btn, icon = true }: { messa
   return <a href={l.href} {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={className}>{children}{icon && <ArrowRight size={16} aria-hidden />}</a>
 }
 
-const nav: [string, string][] = [['Como funciona', '#como-funciona'], ['Disciplinas', '#disciplinas'], ['Planos', '#planos'], ['Dúvidas', '#duvidas'], ['Área do responsável', '/responsavel']]
+const nav: [string, string][] = [['Como funciona', '#como-funciona'], ['Disciplinas', '#disciplinas'], ['Planos', '#planos'], ['Dúvidas', '#duvidas']]
 
 function Header() {
   const [open, setOpen] = useState(false)
+  useEffect(()=>{if(!open)return;const onEscape=(e:KeyboardEvent)=>{if(e.key==='Escape')setOpen(false)};document.addEventListener('keydown',onEscape);return()=>document.removeEventListener('keydown',onEscape)},[open])
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur">
       <Wrap className="flex h-16 items-center justify-between">
@@ -58,7 +59,7 @@ function Hero() {
       <Wrap className="relative z-10 grid gap-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:gap-20">
         <div>
           <Eyebrow>Aegis Educational · Acompanhamento de Elite</Eyebrow>
-          <h1 className="aegis-intro mt-6 max-w-3xl text-4xl leading-[1.1] min-[370px]:text-5xl sm:text-6xl lg:text-7xl font-bold">
+          <h1 className="aegis-intro mt-6 max-w-3xl text-[2.1rem] leading-[1.1] min-[370px]:text-5xl sm:text-6xl lg:text-7xl font-bold">
             {content.heroTitle}
           </h1>
           <p className="aegis-intro aegis-intro-delayed mt-8 max-w-xl text-lg leading-relaxed text-white/70 sm:text-xl">
