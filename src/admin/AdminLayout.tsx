@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { LayoutDashboard, Users, CreditCard, CalendarDays, FileText, Settings, LogOut, Menu, X, Clock3, History, FlaskConical, type LucideIcon } from 'lucide-react'
 import { useAdminAuth } from './AdminAuth'
@@ -22,6 +22,7 @@ export const adminNav: { to: string; label: string; icon: LucideIcon; end?: bool
 export default function AdminLayout() {
   const { email, signOut } = useAdminAuth()
   const [open, setOpen] = useState(false)
+  useEffect(()=>{if(!open)return;const onKey=(e:KeyboardEvent)=>{if(e.key==='Escape')setOpen(false)};document.addEventListener('keydown',onKey);return()=>document.removeEventListener('keydown',onKey)},[open])
 
   const links = (
     <nav aria-label="Painel administrativo" className="flex flex-col gap-1">
@@ -50,16 +51,17 @@ export default function AdminLayout() {
           <Brand compact />
           <button className="rounded-full p-2" aria-expanded={open} aria-controls="admin-menu" aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
         </header>
-        {open && (
-          <div id="admin-menu" className="border-b border-line bg-[#04070f] p-3 lg:hidden">
+        {open && (<>
+          <button type="button" aria-label="Fechar menu administrativo" onClick={()=>setOpen(false)} className="fixed inset-0 z-30 bg-black/70 lg:hidden" />
+          <div id="admin-menu" className="aegis-menu-enter fixed inset-x-0 top-14 z-40 max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-b border-line bg-[#04070f] p-3 shadow-2xl lg:hidden">
             {links}
             <div className="mt-3 flex items-center justify-between border-t border-line px-2 pt-3">
               <span className="truncate text-xs text-mute">{email}</span>
               <button onClick={signOut} className={btnGhost + ' !px-4 !py-2'}><LogOut size={14} aria-hidden />Sair</button>
             </div>
           </div>
-        )}
-        <main id="conteudo-admin" className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12"><Outlet /></main>
+        </>)}
+        <main id="conteudo-admin" className="mx-auto w-full min-w-0 max-w-5xl px-4 py-7 sm:px-8 sm:py-12"><Outlet /></main>
       </div>
     </div>
   )

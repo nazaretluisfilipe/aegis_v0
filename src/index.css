@@ -87,3 +87,73 @@ section {
 }
 
 ::selection { background: rgba(47, 123, 255, 0.4); }
+
+
+/* Aégis · acabamento de interação e movimento.
+   Apenas transform/opacity animam: evita repaints de layout. */
+html { -webkit-text-size-adjust: 100%; }
+body { overflow-wrap: break-word; }
+#conteudo, #planos, #diagnostico, #relatorios { scroll-margin-top: 5.5rem; }
+a, button, input, select, textarea, summary { -webkit-tap-highlight-color: transparent; }
+button, input, select, textarea { font: inherit; }
+button:not(:disabled), summary { cursor: pointer; }
+a, button, input, select, textarea { touch-action: manipulation; }
+:focus-visible { outline: 2px solid #64adff; outline-offset: 3px; }
+
+/* Tratamento premium, sutil, reutilizado em todas as três experiências. */
+.aegis-card {
+  transition: border-color 220ms ease, background-color 220ms ease, transform 300ms cubic-bezier(.2,.8,.2,1), box-shadow 300ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .aegis-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(96, 165, 250, .29);
+    box-shadow: 0 14px 36px rgba(0, 25, 72, .14);
+  }
+}
+.aegis-tab {
+  transition: color 190ms ease, background-color 190ms ease, box-shadow 190ms ease;
+}
+.aegis-menu-enter { animation: aegis-menu-enter 220ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes aegis-menu-enter {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Fallback visível: apenas elementos marcados pelo observer ficam temporariamente ocultos. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-aegis-reveal].aegis-reveal-pending {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  [data-aegis-reveal] {
+    transition: opacity 560ms cubic-bezier(.2,.8,.2,1), transform 560ms cubic-bezier(.2,.8,.2,1);
+  }
+  .aegis-intro { animation: aegis-rise 680ms cubic-bezier(.2,.8,.2,1) both; }
+  .aegis-intro-delayed { animation-delay: 120ms; }
+  @keyframes aegis-rise {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  [data-aegis-reveal] { opacity: 1 !important; transform: none !important; }
+}
+
+/* Conteúdo interno do portal de exemplo: transição sem esperar para pintar. */
+@media (prefers-reduced-motion: no-preference) {
+  .aegis-tab-panel { animation: aegis-tab-open 260ms cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes aegis-tab-open {
+    from { opacity: .55; transform: translate3d(0, 9px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+}
+
+/* Palavras longas não podem alargar grades em telas estreitas. */
+h1, h2, h3, h4 { overflow-wrap: anywhere; }
