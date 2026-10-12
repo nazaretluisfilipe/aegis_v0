@@ -316,7 +316,7 @@ function PublicApp() {
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:p-3 focus:text-black">Ir para o conteúdo</a>
       <Header />
       <main id="conteudo"><Hero /><Problem /><How /><Subjects /><Teachers /><Plans /><Faq /><Diagnostic /></main>
-      <Footer /><StickyBar />
+      <Footer /><div className="h-20 xl:hidden" aria-hidden="true" /><StickyBar />
     </>
   )
 }
