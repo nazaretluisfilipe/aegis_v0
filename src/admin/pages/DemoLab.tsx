@@ -20,6 +20,7 @@ const sections=[
 ]
 export default function DemoLab(){
  const [scenario,setScenario]=useState<Scenario|null>(null)
+ const [demoAccess,setDemoAccess]=useState<{email:string;password:string}|null>(null)
  const [checks,setChecks]=useState<Check[]>([])
  const [busy,setBusy]=useState(false)
  const [loading,setLoading]=useState(true)
@@ -63,6 +64,22 @@ export default function DemoLab(){
   setLoading(false)
  }
  useEffect(()=>{void load()},[])
+ async function demoLogin(){
+  if(!db||busy||!scenario)return
+  const warning='Gerar ou redefinir uma senha TEMPORÁRIA para o responsável fictício? Uma conta de demonstração será criada no Auth, sem envio de mensagens. A senha anterior deixará de funcionar.'
+  if(!window.confirm(warning))return
+  setBusy(true);setError('');setNotice('');setDemoAccess(null)
+  const {data,error:invokeError}=await db.functions.invoke('aegis-guardian-access',{
+    body:{action:'demo_login',guardian_id:scenario.guardian_id}
+  })
+  setBusy(false)
+  if(invokeError||!data?.ok){
+    setError((data?.error as string)||'Não foi possível gerar o login fictício. Confira a função de acesso.')
+    return
+  }
+  setDemoAccess({email:data.email,password:data.password})
+  setNotice('Credenciais temporárias de demonstração criadas. Abra a área do responsável em uma janela anônima.')
+ }
  async function generate(){
   if(!db||busy||scenario)return
   if(!window.confirm('Gerar um cenário inteiramente FICTÍCIO no Supabase? Os registros ficarão nos cadastros até serem removidos em uma futura limpeza administrativa. Nenhuma mensagem será enviada.'))return
@@ -76,7 +93,7 @@ export default function DemoLab(){
   <PageHeader title="Laboratório de testes">Experimente a gestão com registros reais no banco, mas inteiramente fictícios. Nenhuma cobrança, aula externa ou convite é realizado.</PageHeader>
   <section className="rounded-2xl border-2 border-amber-400/60 bg-amber-500/10 p-5" role="note">
    <p className="text-lg font-semibold text-amber-200">AMBIENTE DE TREINAMENTO — DADOS FICTÍCIOS</p>
-   <p className="mt-2 text-sm leading-relaxed">Os cadastros de demonstração são identificados com o prefixo <b>[TESTE — FICTÍCIO]</b> e a marca técnica <b>is_demo</b>. Eles não representam pessoas, receitas ou professores reais. O botão abaixo não cria contas de login, não envia e-mails nem dispara WhatsApp.</p>
+   <p className="mt-2 text-sm leading-relaxed">Os cadastros de demonstração são identificados com o prefixo <b>[TESTE — FICTÍCIO]</b> e a marca técnica <b>is_demo</b>. Eles não representam pessoas, receitas ou professores reais. A criação inicial não gera login, não envia e-mails nem dispara WhatsApp. A conta de login fictícia é criada separadamente quando você solicitar.</p>
   </section>
   {error&&<p role="alert" className="rounded-xl border border-red-500/40 p-4 text-red-200">{error}</p>}
   {notice&&<p role="status" className="rounded-xl border border-blue-500/40 p-4">{notice}</p>}
@@ -87,6 +104,18 @@ export default function DemoLab(){
     <div className="space-y-3">
      <p className="text-sm"><b>Cenário criado</b> em {new Date(scenario.created_at).toLocaleString('pt-BR')}.</p>
      <p className="text-sm text-mute">A criação é idempotente: o sistema mantém um único cenário padrão, evitando gerar cópias a cada clique.</p>
+     <div className="mt-5 space-y-3 rounded-xl border border-blue-400/30 p-4">
+      <h3 className="font-semibold">Testar o login como responsável fictício</h3>
+      <p className="text-sm text-mute">Gere uma conta de treinamento no Supabase Auth, sem enviar e-mail. Entre em uma janela anônima para não encerrar sua sessão administrativa atual. Você verá as aulas, o saldo 7/8 e o relatório publicado de teste.</p>
+      <button className={btn} disabled={busy} onClick={()=>void demoLogin()}>{busy?'Gerando…':'Gerar ou redefinir acesso TESTE'}</button>
+      {demoAccess&&<div role="status" className="space-y-2 rounded-xl border border-amber-400/40 bg-amber-500/10 p-4 text-sm">
+       <p className="font-semibold text-amber-200">CREDENCIAIS DE TESTE — FICTÍCIAS</p>
+       <p>E-mail: <code className="break-all">{demoAccess.email}</code></p>
+       <p>Senha temporária: <code className="break-all">{demoAccess.password}</code></p>
+       <p className="text-xs text-mute">Guarde apenas para o teste. Ao atualizar a página, esta senha deixa de ser exibida. Evite tirar capturas contendo-a.</p>
+       <a href="/responsavel" target="_blank" rel="noopener noreferrer" className="inline-block text-blue-300 underline underline-offset-4">Abrir área do responsável em outra aba</a>
+      </div>}
+     </div>
      <button className={btnGhost} onClick={()=>void load()} disabled={busy}>Atualizar verificações</button>
     </div>:
     <button disabled={busy} className={btn} onClick={()=>void generate()}>{busy?'Criando cenário…':'Criar dados TESTE — FICTÍCIO'}</button>}
