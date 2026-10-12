@@ -11,6 +11,8 @@ import Plans from './pages/Plans'
 import Lessons from './pages/Lessons'
 import Reports from './pages/Reports'
 import Teachers from './pages/Teachers'
+import TeacherAvailability from './pages/TeacherAvailability'
+import AdminHistory from './pages/AdminHistory'
 import SiteEditor from './pages/SiteEditor'
 import Leads from './pages/Leads'
 import SettingsPage from './pages/SettingsPage'
@@ -91,6 +93,8 @@ function Guard() {
             <Route path="interessados" element={<Leads />} />
             <Route path="site" element={<SiteEditor />} />
             <Route path="professores" element={<Teachers />} />
+            <Route path="disponibilidade" element={<TeacherAvailability />} />
+            <Route path="historico" element={<AdminHistory />} />
             <Route path="aulas" element={<Lessons />} />
             <Route path="relatorios" element={<Reports />} />
             <Route path="configuracoes" element={<SettingsPage />} />
