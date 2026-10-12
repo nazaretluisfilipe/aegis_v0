@@ -10,6 +10,9 @@ import Families from './pages/Families'
 import Plans from './pages/Plans'
 import Lessons from './pages/Lessons'
 import Reports from './pages/Reports'
+import Teachers from './pages/Teachers'
+import SiteEditor from './pages/SiteEditor'
+import Leads from './pages/Leads'
 import SettingsPage from './pages/SettingsPage'
 
 const field = 'w-full rounded-xl border border-line bg-white/[0.04] py-3 pl-10 pr-4 text-white outline-none placeholder:text-white/30 focus:border-accent'
@@ -85,6 +88,9 @@ function Guard() {
             <Route index element={<Overview />} />
             <Route path="familias" element={<Families />} />
             <Route path="planos" element={<Plans />} />
+            <Route path="interessados" element={<Leads />} />
+            <Route path="site" element={<SiteEditor />} />
+            <Route path="professores" element={<Teachers />} />
             <Route path="aulas" element={<Lessons />} />
             <Route path="relatorios" element={<Reports />} />
             <Route path="configuracoes" element={<SettingsPage />} />

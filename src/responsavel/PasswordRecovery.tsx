@@ -3,12 +3,13 @@ import {supabaseAdmin as db} from '../admin/supabaseAdmin'
 import {Brand,btn} from '../admin/ui'
 export default function PasswordRecovery(){
  const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[step,setStep]=useState<'request'|'reset'>('request'),[message,setMessage]=useState(''),[busy,setBusy]=useState(false)
- async function request(e:FormEvent){e.preventDefault();if(!db)return;setBusy(true);await db.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin+'/responsavel/recuperar'});setMessage('Se houver uma conta autorizada para esse e-mail, você receberá instruções para redefinir a senha.');setBusy(false)}
+ async function request(e:FormEvent){e.preventDefault();if(!db)return;setBusy(true);const {error}=await db.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin+'/responsavel/recuperar'});if(error){setMessage('Não foi possível solicitar a recuperação. Tente novamente mais tarde.');setBusy(false);return}setMessage('Se houver uma conta autorizada para esse e-mail, você receberá instruções para redefinir a senha.');setBusy(false)}
  useEffect(()=>{
   if(!db)return
   const {data}=db.auth.onAuthStateChange((event)=>{
-   if(event==='PASSWORD_RECOVERY')setStep('reset')
+   if(event==='PASSWORD_RECOVERY'||event==='SIGNED_IN')setStep('reset')
   })
+  void db.auth.getSession().then(({data})=>{if(data.session)setStep('reset')})
   return ()=>data.subscription.unsubscribe()
  },[])
  async function reset(e:FormEvent){e.preventDefault();if(!db||password.length<8)return;setBusy(true);const {error}=await db.auth.updateUser({password});setBusy(false);setMessage(error?'Não foi possível alterar a senha. Solicite outro link.':'Senha atualizada. Volte à área do responsável para entrar.')}

@@ -1,3 +1,4 @@
+import PublishedReports from './PublishedReports'
 import {useEffect,useState,type FormEvent} from 'react'
 import {supabaseAdmin as db,isSupabaseConfigured} from '../admin/supabaseAdmin'
 import {Brand,btn,btnGhost} from '../admin/ui'
@@ -13,12 +14,15 @@ export default function ResponsiblePortal(){
   if(!db){setAuth('error');return}
   const client=db
   let mounted=true
+  let generation=0
+  const clear=()=>{setLessons([]);setStudents([]);setPackages([]);setMaterials([])}
   async function refresh(){
+   const current=++generation
    const {data:{user},error:authError}=await client.auth.getUser()
-   if(!mounted)return
-   if(authError||!user){setAuth('signed-out');return}
+   if(!mounted||current!==generation)return
+   if(authError||!user){clear();setAuth('signed-out');return}
    const guardian=await client.from('guardians').select('family_id').eq('auth_user_id',user.id).eq('active',true).maybeSingle()
-   if(!mounted)return
+   if(!mounted||current!==generation)return
    if(guardian.error){setAuth('error');return}
    if(!guardian.data){setAuth('denied');return}
    const family=guardian.data.family_id as string
@@ -26,21 +30,21 @@ export default function ResponsiblePortal(){
     client.from('students').select('id,full_name,school_grade').eq('family_id',family).eq('active',true),
     client.from('lesson_packages').select('id,title,included_lessons,status,starts_on,ends_on').eq('family_id',family),
     client.from('lessons').select('id,subject,teacher_name,starts_at,status,meet_url,student_id,package_id').eq('family_id',family).order('starts_at'),
-    client.from('lesson_materials').select('id,lesson_id,title,storage_path')
+    client.from('lesson_materials').select('id,lesson_id,title,storage_path').eq('active',true)
    ])
-   if(!mounted)return
+   if(!mounted||current!==generation)return
    if(s.error||p.error||l.error||m.error){setAuth('error');return}
    const retrieved=(l.data||[]) as Lesson[]
    setStudents((s.data||[]) as Student[]);setPackages((p.data||[]) as Package[]);setLessons(retrieved)
    setMaterials(((m.data||[]) as Material[]).filter(mat=>retrieved.some(lesson=>lesson.id===mat.lesson_id)))
    setAuth('ready')
   }
-  const {data:subscription}=client.auth.onAuthStateChange(()=>{queueMicrotask(()=>{void refresh()})})
+  const {data:subscription}=client.auth.onAuthStateChange((_event,session)=>{if(!session){generation++;clear();setAuth('signed-out')}else{setAuth('loading');queueMicrotask(()=>{void refresh()})}})
   void refresh()
   return ()=>{mounted=false;subscription.subscription.unsubscribe()}
  },[])
  async function login(e:FormEvent){e.preventDefault();if(!db)return;setBusy(true);setError('');const {error:err}=await db.auth.signInWithPassword({email:email.trim(),password});if(err)setError('Não foi possível entrar. Confira e-mail, senha e confirmação da conta.');setBusy(false)}
- async function logout(){await db?.auth.signOut();setAuth('signed-out');setLessons([]);setStudents([]);setPackages([]);setMaterials([])}
+ async function logout(){setAuth('loading');const result=await db?.auth.signOut();setLessons([]);setStudents([]);setPackages([]);setMaterials([]);if(result?.error){setError('Não foi possível encerrar a sessão. Tente novamente.');setAuth('error')}else setAuth('signed-out')}
  async function download(m:Material){
   if(!db)return
   const {data,error:err}=await db.storage.from('aegis-lesson-materials').createSignedUrl(m.storage_path,60)
@@ -56,8 +60,8 @@ export default function ResponsiblePortal(){
  return <main className="min-h-screen bg-black px-5 py-9 text-white"><div className="mx-auto max-w-5xl space-y-8"><header className="flex flex-wrap items-center justify-between gap-4"><Brand/><button className={btnGhost} onClick={logout}>Sair</button></header><div><h1 className="text-3xl">Minhas aulas</h1><p className="mt-2 text-mute">Acompanhe as aulas contratadas e os materiais disponibilizados.</p></div>
  {error&&<p role="alert" className="text-red-300">{error}</p>}
  <section className="grid gap-3 sm:grid-cols-3"><div className="glass-panel rounded-xl p-5"><p className="text-mute">Alunos vinculados</p><b className="text-2xl">{students.length}</b></div><div className="glass-panel rounded-xl p-5"><p className="text-mute">Próximas aulas</p><b className="text-2xl">{future.length}</b></div><div className="glass-panel rounded-xl p-5"><p className="text-mute">Aulas realizadas</p><b className="text-2xl">{lessons.filter(l=>l.status==='completed').length}</b></div></section>
- <section><h2 className="mb-4 text-xl">Aulas contratadas</h2>{packages.length===0?<p className="glass-panel rounded-xl p-5 text-mute">Nenhum pacote cadastrado ainda.</p>:<div className="grid gap-3 sm:grid-cols-2">{packages.map(p=>{const used=lessons.filter(l=>l.package_id===p.id&&l.status==='completed').length;return <div key={p.id} className="glass-panel rounded-xl p-5"><b>{p.title}</b><p className="mt-2 text-sm text-mute">Contratadas: {p.included_lessons} · Realizadas: {used} · Restantes: {Math.max(0,p.included_lessons-used)}</p><p className="mt-1 text-sm text-mute">Situação: {p.status}</p></div>})}</div>}</section>
- <section><h2 className="mb-4 text-xl">Agenda e materiais</h2>{lessons.length===0?<p className="glass-panel rounded-xl p-5 text-mute">Nenhuma aula cadastrada até o momento.</p>:<div className="space-y-4">{lessons.map(l=><article key={l.id} className="glass-panel rounded-2xl p-5"><div className="flex flex-wrap justify-between gap-3"><div><h3 className="text-lg">{l.subject} — {students.find(s=>s.id===l.student_id)?.full_name||'Aluno'}</h3><p className="mt-1 text-sm text-mute">{new Date(l.starts_at).toLocaleString('pt-BR')} · {l.teacher_name} · {l.status}</p></div>{l.meet_url&&l.status==='scheduled'?<a href={l.meet_url} target="_blank" rel="noopener noreferrer" className={btn}>Entrar no Google Meet</a>:<span className="text-sm text-mute">Link ainda não disponibilizado</span>}</div><h4 className="mt-5 mb-2 text-sm">Materiais complementares</h4>{materials.filter(m=>m.lesson_id===l.id).length===0?<p className="text-sm text-mute">Nenhum material disponível.</p>:<div className="flex flex-wrap gap-2">{materials.filter(m=>m.lesson_id===l.id).map(m=><button key={m.id} className={btnGhost} onClick={()=>void download(m)}>{m.title}</button>)}</div>}</article>)}</div>}</section>
- <p className="text-xs text-mute">Área restrita. Seus dados são carregados conforme a autorização da conta vinculada.</p>
+ <section><h2 className="mb-4 text-xl">Aulas contratadas</h2>{packages.length===0?<p className="glass-panel rounded-xl p-5 text-mute">Nenhum pacote cadastrado ainda.</p>:<div className="grid gap-3 sm:grid-cols-2">{packages.map(p=>{const used=lessons.filter(l=>l.package_id===p.id&&l.status==='completed').length;return <div key={p.id} className="glass-panel rounded-xl p-5"><b>{p.title}</b><p className="mt-2 text-sm text-mute">Contratadas: {p.included_lessons} · Realizadas: {used} · Restantes: {Math.max(0,p.included_lessons-used)}</p><p className="mt-1 text-sm text-mute">Situação: {({active:'Ativo',finished:'Finalizado',cancelled:'Cancelado'} as Record<string,string>)[p.status]}</p></div>})}</div>}</section>
+ <section><h2 className="mb-4 text-xl">Agenda e materiais</h2>{lessons.length===0?<p className="glass-panel rounded-xl p-5 text-mute">Nenhuma aula cadastrada até o momento.</p>:<div className="space-y-4">{lessons.map(l=><article key={l.id} className="glass-panel rounded-2xl p-5"><div className="flex flex-wrap justify-between gap-3"><div><h3 className="text-lg">{l.subject} — {students.find(s=>s.id===l.student_id)?.full_name||'Aluno'}</h3><p className="mt-1 text-sm text-mute">{new Date(l.starts_at).toLocaleString('pt-BR')} · {l.teacher_name} · {({scheduled:'Agendada',completed:'Realizada',cancelled:'Cancelada',absent:'Falta registrada'} as Record<string,string>)[l.status]}</p></div>{l.meet_url&&l.status==='scheduled'?<a href={l.meet_url} target="_blank" rel="noopener noreferrer" className={btn}>Entrar no Google Meet</a>:<span className="text-sm text-mute">Link ainda não disponibilizado</span>}</div><h4 className="mt-5 mb-2 text-sm">Materiais complementares</h4>{materials.filter(m=>m.lesson_id===l.id).length===0?<p className="text-sm text-mute">Nenhum material disponível.</p>:<div className="flex flex-wrap gap-2">{materials.filter(m=>m.lesson_id===l.id).map(m=><button key={m.id} className={btnGhost} onClick={()=>void download(m)}>{m.title}</button>)}</div>}</article>)}</div>}</section>
+ <PublishedReports lessons={lessons}/><p className="text-xs text-mute">Área restrita. Seus dados são carregados conforme a autorização da conta vinculada.</p>
  </div></main>
 }

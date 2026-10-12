@@ -1,7 +1,7 @@
 name: Aegis - verificacao da Fase 1
 on:
   push:
-    branches: [entrega-admin-etapa1, desenvolvimento-portal-responsavel]
+    branches: [entrega-admin-etapa1, desenvolvimento-portal-responsavel, desenvolvimento-mvp-20261012]
   workflow_dispatch:
 jobs:
   verificar:
@@ -18,12 +18,5 @@ jobs:
         run: npm ci
       - name: Verificar TypeScript e build
         run: npm run build
-      - name: Instalar motor PostgreSQL para testes (somente runner)
-        run: npm install --no-save --package-lock=false @electric-sql/pglite@0.5.8
-      - name: Testar permissoes da etapa anterior
-        run: node supabase/tests/admin.test.mjs
-      - name: Testar cadastros e RLS da Fase 1
-        run: node supabase/tests/families.test.mjs
-
-      - name: Verificar contratos de seguranca do portal
-        run: node --test supabase/tests/portal-contract.test.mjs
+      - name: Testar autenticação, autorização e operação
+        run: npm test

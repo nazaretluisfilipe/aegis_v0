@@ -1,0 +1,9 @@
+import {useEffect,useState} from 'react'
+import {supabaseAdmin as db} from '../admin/supabaseAdmin'
+const labels={contents:'Conteúdos trabalhados',activities:'Atividades realizadas',difficulties:'Dificuldades',strengths:'Pontos fortes',progress:'Evolução observada',recommendations:'Recomendações',next_steps:'Próximos passos'}
+type Report={id:string;title:string;lesson_id:string;published_at:string}&Record<keyof typeof labels,string>
+export default function PublishedReports({lessons}:{lessons:{id:string;subject:string;starts_at:string}[]}){
+ const [rows,setRows]=useState<Report[]>([]),[error,setError]=useState('')
+ useEffect(()=>{let active=true;void (async()=>{const r=await db!.from('educational_reports').select('id,title,lesson_id,published_at,contents,activities,difficulties,strengths,progress,recommendations,next_steps').eq('status','published').order('published_at',{ascending:false});if(!active)return;if(r.error)setError('Não foi possível carregar os relatórios.');else setRows(r.data as Report[])})();return()=>{active=false}},[])
+ return <section id="relatorios"><h2 className="mb-4 text-xl">Relatórios de evolução</h2>{error?<p role="alert">{error}</p>:rows.length===0?<p className="text-mute">Nenhum relatório publicado ainda.</p>:<div className="space-y-4">{rows.map(r=>{const l=lessons.find(l=>l.id===r.lesson_id);return <details key={r.id} className="glass-panel rounded-2xl p-5"><summary className="cursor-pointer text-lg">{r.title}<span className="mt-1 block text-sm text-mute">{l?.subject} · {l&&new Date(l.starts_at).toLocaleDateString('pt-BR')}</span></summary>{Object.entries(labels).map(([k,label])=>r[k as keyof typeof labels]&&<div key={k} className="mt-5"><h3 className="font-semibold">{label}</h3><p className="mt-1 whitespace-pre-wrap text-mute">{r[k as keyof typeof labels]}</p></div>)}</details>})}</div>}</section>
+}

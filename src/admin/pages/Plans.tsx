@@ -1,43 +1,13 @@
 import {useEffect,useState,type FormEvent} from 'react'
-import {PageHeader,btn} from '../ui'
+import {PageHeader,btn,btnGhost} from '../ui'
 import {supabaseAdmin as db} from '../supabaseAdmin'
-type Guardian={id:string;family_id:string;full_name:string}
-type Package={id:string;family_id:string;title:string;included_lessons:number;status:string;starts_on:string|null;ends_on:string|null}
+type Package={id:string;family_id:string;title:string;included_lessons:number;status:string;starts_on:string|null;ends_on:string|null;price_cents:number|null;terms:string}
+const initial={family_id:'',title:'',included_lessons:'',starts_on:'',ends_on:'',price:'',terms:'',status:'active',adjustment_reason:''}
 export default function Plans(){
- const [guardians,setGuardians]=useState<Guardian[]>([]),[packages,setPackages]=useState<Package[]>([]),[used,setUsed]=useState<Record<string,number>>({}),[saving,setSaving]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('')
- const [form,setForm]=useState({family_id:'',title:'',included_lessons:'',starts_on:'',ends_on:''})
- async function load(){
-  if(!db)return
-  const [g,p,l]=await Promise.all([db.from('guardians').select('id,family_id,full_name'),db.from('lesson_packages').select('id,family_id,title,included_lessons,status,starts_on,ends_on').order('created_at',{ascending:false}),db.from('lessons').select('package_id,status')])
-  if(g.error||p.error||l.error){setError('Não foi possível carregar os pacotes. Verifique a migração 0003.');return}
-  setGuardians((g.data||[]) as Guardian[]);setPackages((p.data||[]) as Package[])
-  const totals:Record<string,number>={};for(const row of (l.data||[])){if(row.package_id&&row.status==='completed')totals[row.package_id]=(totals[row.package_id]||0)+1}
-  setUsed(totals)
- }
+ const [labels,setLabels]=useState<Record<string,string>>({}),[packages,setPackages]=useState<Package[]>([]),[used,setUsed]=useState<Record<string,number>>({}),[saving,setSaving]=useState(false),[message,setMessage]=useState(''),[id,setId]=useState(''),[form,setForm]=useState(initial)
+ async function load(){const [g,p,l]=await Promise.all([db!.from('families').select('id,name'),db!.from('lesson_packages').select('*').order('created_at',{ascending:false}),db!.from('lessons').select('package_id,status')]);if(g.error||p.error||l.error){setMessage('Não foi possível carregar os pacotes.');return}setLabels(Object.fromEntries(g.data.map(x=>[x.id,x.name])));setPackages(p.data as Package[]);const totals:Record<string,number>={};for(const row of l.data)if(row.package_id&&row.status==='completed')totals[row.package_id]=(totals[row.package_id]||0)+1;setUsed(totals)}
  useEffect(()=>{void load()},[])
- async function save(e:FormEvent){
-  e.preventDefault();if(!db||saving)return
-  const n=Number(form.included_lessons)
-  if(!form.family_id||form.title.trim().length<3||!Number.isInteger(n)||n<1||n>500){setError('Selecione responsável, título e quantidade válida de aulas.');return}
-  setSaving(true);setError('');setNotice('')
-  const {error}=await db.from('lesson_packages').insert({family_id:form.family_id,title:form.title.trim(),included_lessons:n,starts_on:form.starts_on||null,ends_on:form.ends_on||null})
-  setSaving(false)
-  if(error){setError('Não foi possível gravar o pacote. Confira as datas e sua autorização.');return}
-  setNotice('Pacote cadastrado.');setForm({family_id:'',title:'',included_lessons:'',starts_on:'',ends_on:''});await load()
- }
- const labels=new Map<string,string>();guardians.forEach(g=>{if(!labels.has(g.family_id))labels.set(g.family_id,g.full_name)})
- const input='mt-1 w-full rounded-xl border border-white/20 bg-[#080d19] p-3'
- return <div className="space-y-7"><PageHeader title="Pacotes de aulas">Registre as aulas contratadas; não há cobrança nem confirmação automática de pagamentos.</PageHeader>
- {error&&<p role="alert" className="rounded-xl border border-red-500/40 p-4 text-red-300">{error}</p>}
- {notice&&<p role="status" className="rounded-xl border border-blue-500/40 p-4">{notice}</p>}
- <section className="glass-panel rounded-2xl p-6"><h2 className="mb-4 text-xl">Registrar pacote contratado</h2><form onSubmit={save} className="grid gap-4 sm:grid-cols-2">
- <label>Responsável *<select required className={input} value={form.family_id} onChange={e=>setForm({...form,family_id:e.target.value})}><option value="">Selecione</option>{[...labels.entries()].map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></label>
- <label>Nome do pacote *<input required maxLength={120} placeholder="Ex.: 8 aulas de Matemática" className={input} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label>
- <label>Quantidade contratada *<input required type="number" min="1" max="500" className={input} value={form.included_lessons} onChange={e=>setForm({...form,included_lessons:e.target.value})}/></label>
- <label>Data inicial<input type="date" className={input} value={form.starts_on} onChange={e=>setForm({...form,starts_on:e.target.value})}/></label>
- <label>Vencimento<input type="date" className={input} value={form.ends_on} onChange={e=>setForm({...form,ends_on:e.target.value})}/></label>
- <button className={btn+' sm:col-span-2'} disabled={saving}>{saving?'Salvando...':'Registrar pacote'}</button>
- </form></section>
- <section className="glass-panel rounded-2xl p-6"><h2 className="mb-4 text-xl">Pacotes registrados</h2>{packages.length===0?<p className="text-mute">Nenhum pacote registrado.</p>:<div className="space-y-3">{packages.map(p=><div className="rounded-xl border border-white/10 p-4" key={p.id}><b>{p.title}</b><p className="text-sm text-mute">{labels.get(p.family_id)||'Responsável'} · Contratadas: {p.included_lessons} · Realizadas: {used[p.id]||0} · Restantes: {Math.max(0,p.included_lessons-(used[p.id]||0))} · {p.status}</p></div>)}</div>}</section>
- </div>
+ async function save(e:FormEvent){e.preventDefault();if(saving)return;setSaving(true);setMessage('');try{const data={family_id:form.family_id,title:form.title.trim(),included_lessons:Number(form.included_lessons),starts_on:form.starts_on||null,ends_on:form.ends_on||null,price_cents:form.price===''?null:Math.round(Number(form.price)*100),terms:form.terms,status:form.status,adjustment_reason:form.adjustment_reason};const r=id?await db!.from('lesson_packages').update(data).eq('id',id).select('id').single():await db!.from('lesson_packages').insert(data);if(r.error)throw r.error;setForm(initial);setId('');setMessage('Pacote salvo.');await load()}catch{setMessage('Não foi possível salvar. Confira datas e saldo; ajustes na quantidade exigem justificativa e não podem ficar abaixo das aulas realizadas.')}finally{setSaving(false)}}
+ const field='mt-1 w-full rounded-xl border border-white/20 bg-black p-3'
+ return <div className="space-y-6"><PageHeader title="Planos e saldos">Registre contratações e condições aprovadas. Apenas aulas realizadas consomem saldo; cancelamentos e faltas não são cobrados automaticamente.</PageHeader>{message&&<p role="status">{message}</p>}<form onSubmit={save} className="glass-panel grid gap-4 rounded-2xl p-6 sm:grid-cols-2"><label>Família<select disabled={!!id} required className={field} value={form.family_id} onChange={e=>setForm({...form,family_id:e.target.value})}><option value="">Selecione</option>{Object.entries(labels).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></label><label>Nome do pacote<input required minLength={3} maxLength={120} className={field} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label>{([['included_lessons','Quantidade contratada','number'],['price','Valor contratado (R$)','number'],['starts_on','Início','date'],['ends_on','Fim do período','date']] as const).map(([key,label,type])=><label key={key}>{label}<input required={key==='included_lessons'} min={key==='included_lessons'?1:key==='price'?0:undefined} max={key==='included_lessons'?500:undefined} step={key==='price'?'0.01':undefined} type={type} className={field} value={form[key]} onChange={e=>setForm({...form,[key]:e.target.value})}/></label>)}<label>Situação<select className={field} value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="active">Ativo</option><option value="finished">Finalizado</option><option value="cancelled">Cancelado</option></select></label><label>Condições acordadas<textarea maxLength={3000} className={field} value={form.terms} onChange={e=>setForm({...form,terms:e.target.value})}/></label>{id&&<label className="sm:col-span-2">Justificativa para ajuste de quantidade<textarea maxLength={1000} className={field} value={form.adjustment_reason} onChange={e=>setForm({...form,adjustment_reason:e.target.value})}/></label>}<button disabled={saving} className={btn}>{id?'Salvar alterações':'Registrar contratação'}</button>{id&&<button type="button" className={btnGhost} onClick={()=>{setId('');setForm(initial)}}>Cancelar edição</button>}</form><section className="space-y-3">{packages.length===0&&<p>Nenhum pacote registrado.</p>}{packages.map(p=><article className="glass-panel rounded-2xl p-5" key={p.id}><h2 className="text-xl">{p.title}</h2><p className="my-2 text-mute">{labels[p.family_id]} · Contratadas: {p.included_lessons} · Realizadas: {used[p.id]||0} · Restantes: {p.included_lessons-(used[p.id]||0)}</p><p className="mb-3 whitespace-pre-wrap text-sm">{p.terms}</p><button className={btnGhost} onClick={()=>{setId(p.id);setForm({family_id:p.family_id,title:p.title,included_lessons:String(p.included_lessons),starts_on:p.starts_on||'',ends_on:p.ends_on||'',price:p.price_cents===null?'':String(p.price_cents/100),terms:p.terms,status:p.status,adjustment_reason:''});window.scrollTo({top:0})}}>Editar / ajustar saldo</button></article>)}</section></div>
 }

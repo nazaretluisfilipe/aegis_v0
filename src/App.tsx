@@ -1,3 +1,4 @@
+import {SiteContentProvider,useSiteContent} from './siteContent'
 import { useState, type ReactNode } from 'react'
 import { ArrowRight, Check, Loader2, Menu, MessageCircle, X } from 'lucide-react'
 import { site, messages, subjects, plans, singleLesson, brl } from './config'
@@ -19,11 +20,12 @@ function Brand({ className = 'text-2xl' }: { className?: string }) {
 }
 
 export function Cta({ message, children, className = btn, icon = true }: { message: string; children: ReactNode; className?: string; icon?: boolean }) {
-  const l = wa(message)
+  const content=useSiteContent()
+  const l = content.whatsapp ? {href:`https://wa.me/${content.whatsapp}?text=${encodeURIComponent(message)}`,external:true} : wa(message)
   return <a href={l.href} {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={className}>{children}{icon && <ArrowRight size={16} aria-hidden />}</a>
 }
 
-const nav: [string, string][] = [['Como funciona', '#como-funciona'], ['Disciplinas', '#disciplinas'], ['Planos', '#planos'], ['Dúvidas', '#duvidas']]
+const nav: [string, string][] = [['Como funciona', '#como-funciona'], ['Disciplinas', '#disciplinas'], ['Planos', '#planos'], ['Dúvidas', '#duvidas'], ['Área do responsável', '/responsavel']]
 
 function Header() {
   const [open, setOpen] = useState(false)
@@ -31,13 +33,13 @@ function Header() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur">
       <Wrap className="flex h-16 items-center justify-between">
         <a href="/" aria-label="Aegis Educational, início"><Brand /></a>
-        <nav aria-label="Principal" className="hidden items-center gap-7 md:flex">
+        <nav aria-label="Principal" className="hidden items-center gap-4 xl:flex">
           {nav.map(([n, h]) => <a key={h} href={h} className="text-sm text-white/70 hover:text-[#3b9ce2] transition-colors">{n}</a>)}
           <a href="#diagnostico" className={btn + ' !py-2.5'}>Solicitar diagnóstico</a>
         </nav>
-        <button className="rounded-full p-2 md:hidden text-white" aria-expanded={open} aria-controls="menu-mobile" aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
+        <button className="rounded-full p-2 xl:hidden text-white" aria-expanded={open} aria-controls="menu-mobile" aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
       </Wrap>
-      {open && <nav id="menu-mobile" aria-label="Menu móvel" className="border-t border-white/10 bg-black md:hidden"><Wrap className="flex flex-col py-2">
+      {open && <nav id="menu-mobile" aria-label="Menu móvel" className="border-t border-white/10 bg-black xl:hidden"><Wrap className="flex flex-col py-2">
         {nav.map(([n, h]) => <a key={h} href={h} onClick={() => setOpen(false)} className="border-b border-white/10 py-4 font-serif text-lg text-white">{n}</a>)}
         <a href="#diagnostico" onClick={() => setOpen(false)} className={btn + ' my-5'}>Solicitar diagnóstico</a>
       </Wrap></nav>}
@@ -46,6 +48,7 @@ function Header() {
 }
 
 function Hero() {
+  const content=useSiteContent()
   return (
     <section className="relative overflow-hidden py-20 sm:py-32 lg:py-40">
       <HeroGradient />
@@ -54,10 +57,10 @@ function Hero() {
         <div>
           <Eyebrow>Aegis Educational · Acompanhamento de Elite</Eyebrow>
           <h1 className="mt-6 max-w-3xl text-5xl leading-[1.1] sm:text-6xl lg:text-7xl font-bold">
-            O aluno não precisa de mais uma aula. <span className="text-gradient">Precisa de um acompanhamento.</span>
+            {content.heroTitle}
           </h1>
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-white/70 sm:text-xl">
-            Aulas individuais de Matemática, Física e Química, com professor escolhido pelo perfil do aluno e a família informada sobre cada avanço.
+            {content.heroDescription}
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <a href="#diagnostico" className={btn}>Solicitar diagnóstico gratuito <ArrowRight size={16} aria-hidden /></a>
@@ -129,16 +132,18 @@ function Teachers() {
 }
 
 function Plans() {
-  const list = [{ id: '1', label: singleLesson.label, lessons: 1, price: singleLesson.price, note: 'Para conhecer o formato ou tirar uma dúvida pontual.', featured: false }, ...plans]
+  const content=useSiteContent()
+  const list=content.plans
+  if(!content.plansVisible||!list.length)return <section id="planos" className="py-20"><Wrap><h2 className="text-4xl">Um plano para o momento do aluno</h2><p className="my-5 text-graphite">Converse com a equipe para conhecer as opções e condições de acompanhamento.</p><Cta message={messages.general}>Consultar planos</Cta></Wrap></section>
   return (
     <section id="planos" className="py-20 sm:py-24"><Wrap>
       <Eyebrow>Planos mensais e aula avulsa</Eyebrow>
       <h2 className="mt-3 max-w-3xl text-4xl leading-tight sm:text-5xl">Valores claros, aulas sempre individuais.</h2>
-      <p className="mt-5 max-w-2xl text-lg text-graphite">Cada aula é só do aluno com o professor. Quanto maior o plano, menor o valor por aula.</p>
+      <p className="mt-5 max-w-2xl text-lg text-graphite">Cada aula é só do aluno com o professor. As condições de cada plano são apresentadas abaixo.</p>
       <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
         {list.map(p => {
           const per = p.price / p.lessons
-          const save = singleLesson.price * p.lessons - p.price
+          const save = 0
           return (
             <article key={p.id} className={`relative flex flex-col rounded-sm border bg-white/[0.03] p-6 ${p.featured ? 'border-accent shadow-[0_24px_60px_-30px_rgba(47,123,255,.5)] lg:-mt-3 lg:pb-9' : 'border-line'}`}>
               {p.featured && <span className="absolute -top-3 left-6 rounded-full bg-brass px-3 py-1 text-xs font-medium text-white">Ritmo semanal</span>}
@@ -166,6 +171,9 @@ const faq: [string, string][] = [
   ['O que a Aegis Educational faz com os dados que eu informo?', 'Usamos apenas para entender o aluno e entrar em contato com você. Veja a Política de Privacidade.'],
 ]
 function Faq() {
+  const content=useSiteContent()
+  if(!content.faqVisible)return null
+  const faq=content.faq.map(f=>[f.question,f.answer])
   return (
     <section id="duvidas" className="border-t border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
       <h2 className="text-4xl leading-tight sm:text-5xl">Perguntas frequentes</h2>
@@ -268,7 +276,7 @@ function Footer() {
 
 function StickyBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-white/10 bg-black/90 p-3 backdrop-blur md:hidden" style={{ paddingBottom: 'max(.75rem, env(safe-area-inset-bottom))' }}>
+    <div className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-white/10 bg-black/90 p-3 backdrop-blur xl:hidden" style={{ paddingBottom: 'max(.75rem, env(safe-area-inset-bottom))' }}>
       <a href="#diagnostico" className={btn + ' flex-1'}>Solicitar diagnóstico</a>
       <Cta message={messages.general} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 text-white" icon={false}><MessageCircle size={20} aria-label="Conversar pelo WhatsApp" /></Cta>
     </div>
@@ -291,7 +299,7 @@ function Privacy() {
   )
 }
 
-export default function App() {
+function PublicApp() {
   if (location.pathname.replace(/\/$/, '') === '/privacidade') return <><Header /><Privacy /><Footer /></>
   return (
     <>
@@ -302,3 +310,5 @@ export default function App() {
     </>
   )
 }
+
+export default function App(){return <SiteContentProvider><PublicApp/></SiteContentProvider>}

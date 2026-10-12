@@ -7,9 +7,12 @@ import { Brand, btnGhost } from './ui'
 export const adminNav: { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
   { to: '/', label: 'Visão geral', icon: LayoutDashboard, end: true },
   { to: '/familias', label: 'Responsáveis e alunos', icon: Users },
-  { to: '/planos', label: 'Planos e pagamentos', icon: CreditCard },
+  { to: '/professores', label: 'Professores', icon: Users },
+  { to: '/planos', label: 'Planos e saldos', icon: CreditCard },
   { to: '/aulas', label: 'Aulas', icon: CalendarDays },
   { to: '/relatorios', label: 'Relatórios e materiais', icon: FileText },
+  { to: '/interessados', label: 'Interessados', icon: Users },
+  { to: '/site', label: 'Editor do site', icon: FileText },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ]
 
