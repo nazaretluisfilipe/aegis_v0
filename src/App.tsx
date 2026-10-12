@@ -11,11 +11,14 @@ const Eyebrow = ({ children, light }: { children: ReactNode; light?: boolean }) 
 
 
 
-/** Marca provisória, só tipografia. Para trocar pela logo definitiva: ponha /public/logo.svg e defina LOGO_SRC. */
-const LOGO_SRC = ''
+/** Marca: escudo da logo + nome. A logo completa (public/logo-aegis.png) aparece no rodapé. */
 function Brand({ className = 'text-2xl' }: { className?: string }) {
-  if (LOGO_SRC) return <img src={LOGO_SRC} alt={site.name} className="h-8 w-auto" />
-  return <span className={`font-serif tracking-tight whitespace-nowrap ${className}`}>Aegis<span className="text-brass"> Educational</span></span>
+  return (
+    <span className="inline-flex items-center gap-3">
+      <img src="/logo-aegis-mark.png" alt="" aria-hidden="true" width={135} height={200} className="h-10 w-auto" />
+      <span className={`font-serif tracking-tight ${className}`}>Aégis<span className="text-brass"> Educational</span></span>
+    </span>
+  )
 }
 
 export function Cta({ message, children, className = btn, icon = true }: { message: string; children: ReactNode; className?: string; icon?: boolean }) {
@@ -57,7 +60,7 @@ function Hero() {
             O aluno não precisa de mais uma aula. <span className="text-gradient">Precisa de um acompanhamento.</span>
           </h1>
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-white/70 sm:text-xl">
-            Aulas individuais de Matemática, Física e Química, com professor escolhido pelo perfil do aluno e a família informada sobre cada avanço.
+            Aulas individuais de Matemática, Física, Química e Biologia, com professor escolhido pelo perfil do aluno e a família informada sobre cada avanço.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <a href="#diagnostico" className={btn}>Solicitar diagnóstico gratuito <ArrowRight size={16} aria-hidden /></a>
@@ -106,11 +109,11 @@ function How() {
 }
 
 function Subjects() {
-  const d: Record<string, string> = { 'Matemática': 'Do reforço de base à resolução de problemas mais exigentes.', 'Física': 'Conceito, modelagem e cálculo, sem decorar fórmulas soltas.', 'Química': 'Da leitura de enunciados ao raciocínio quantitativo.' }
+  const d: Record<string, string> = { 'Matemática': 'Do reforço de base à resolução de problemas mais exigentes.', 'Física': 'Conceito, modelagem e cálculo, sem decorar fórmulas soltas.', 'Química': 'Da leitura de enunciados ao raciocínio quantitativo.', 'Biologia': 'Dos conceitos fundamentais à compreensão dos seres vivos.' }
   return (
     <section id="disciplinas" className="py-20 sm:py-24"><Wrap>
       <h2 className="max-w-3xl text-4xl leading-tight sm:text-5xl">Disciplinas</h2>
-      <div className="mt-10 grid gap-px overflow-hidden rounded-sm border border-line bg-line md:grid-cols-3">{subjects.map(s => <div key={s} className="bg-[#070a14] p-8"><h3 className="text-2xl">{s}</h3><p className="mt-3 leading-relaxed text-graphite">{d[s]}</p></div>)}</div>
+      <div className="mt-10 grid gap-px overflow-hidden rounded-sm border border-line bg-line md:grid-cols-2 lg:grid-cols-4">{subjects.map(s => <div key={s} className="bg-[#070a14] p-8"><h3 className="text-2xl">{s}</h3><p className="mt-3 leading-relaxed text-graphite">{d[s]}</p></div>)}</div>
       <p className="mt-6 max-w-2xl text-sm text-mute">Outra disciplina? Conte no diagnóstico e verificamos se conseguimos atender.</p>
     </Wrap></section>
   )
@@ -121,7 +124,7 @@ function Teachers() {
     <section id="professores" className="border-y border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">
       <h2 className="text-4xl leading-tight sm:text-5xl">Você não escolhe sozinho. Nós indicamos.</h2>
       <div className="space-y-4 text-lg leading-relaxed text-graphite">
-        <p>A Aegis Educational seleciona o professor a partir do aluno: série, disciplina, dificuldade e objetivo. Não pela primeira agenda livre.</p>
+        <p>A Aegis seleciona o professor a partir do aluno: série, disciplina, dificuldade e objetivo. Não pela primeira agenda livre.</p>
         <p>Depois da conversa com a família, apresentamos o professor indicado antes da primeira aula.</p>
       </div>
     </Wrap></section>
@@ -134,7 +137,7 @@ function Plans() {
     <section id="planos" className="py-20 sm:py-24"><Wrap>
       <Eyebrow>Planos mensais e aula avulsa</Eyebrow>
       <h2 className="mt-3 max-w-3xl text-4xl leading-tight sm:text-5xl">Valores claros, aulas sempre individuais.</h2>
-      <p className="mt-5 max-w-2xl text-lg text-graphite">Cada aula é só do aluno com o professor. Quanto maior o plano, menor o valor por aula.</p>
+      <p className="mt-5 max-w-2xl text-lg text-graphite">Aulas individuais online de 50 minutos. Você pode combinar disciplinas no mesmo plano. Quanto maior o plano, menor o valor por aula.</p>
       <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
         {list.map(p => {
           const per = p.price / p.lessons
@@ -152,7 +155,7 @@ function Plans() {
           )
         })}
       </div>
-      <p className="mt-6 text-sm text-mute">Valores informados pela Aegis Educational. Forma de pagamento e demais condições são combinadas na conversa, antes de qualquer cobrança.</p>
+      <p className="mt-6 text-sm text-mute">Valores informados pela Aegis. Forma de pagamento e demais condições são combinadas na conversa, antes de qualquer cobrança.</p>
     </Wrap></section>
   )
 }
@@ -163,7 +166,7 @@ const faq: [string, string][] = [
   ['As aulas são individuais?', 'Sim. Cada aula é exclusiva do aluno com o professor.'],
   ['Como são as aulas?', 'As aulas são online, por videochamada.'],
   ['Preciso assinar algum contrato antes de conversar?', 'Não. O diagnóstico e a conversa inicial vêm antes de qualquer contratação.'],
-  ['O que a Aegis Educational faz com os dados que eu informo?', 'Usamos apenas para entender o aluno e entrar em contato com você. Veja a Política de Privacidade.'],
+  ['O que a Aegis faz com os dados que eu informo?', 'Usamos apenas para entender o aluno e entrar em contato com você. Veja a Política de Privacidade.'],
 ]
 function Faq() {
   return (
@@ -255,7 +258,7 @@ function Diagnostic() {
 function Footer() {
   return (
     <footer className="bg-ink pb-28 pt-14 text-paper md:pb-14"><Wrap className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
-      <div><Brand className="text-3xl" /><p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">Acompanhamento educacional individual em Matemática, Física e Química.</p></div>
+      <div><a href="/" aria-label="Aegis Educational, início" className="inline-block rounded-2xl bg-white p-4"><img src="/logo-aegis.png" alt="Aégis Educação" width={520} height={669} className="h-32 w-auto" /></a><p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">Acompanhamento educacional individual em Matemática, Física, Química e Biologia.</p></div>
       <ul className="space-y-2 text-sm text-white/80">{nav.map(([n, h]) => <li key={h}><a href={h} className="hover:text-white">{n}</a></li>)}<li><a href="#diagnostico" className="hover:text-white">Solicitar diagnóstico</a></li></ul>
       <ul className="space-y-2 text-sm text-white/80">
         {site.email && <li><a href={`mailto:${site.email}`} className="hover:text-white">{site.email}</a></li>}
@@ -284,7 +287,7 @@ function Privacy() {
         <p><b>Quais dados coletamos.</b> No formulário de diagnóstico: nome, WhatsApp e e-mail do responsável; nome, série, idade (opcional), escola (opcional), disciplina, objetivo, dificuldades, disponibilidade e observações sobre o aluno.</p>
         <p><b>Para que usamos.</b> Exclusivamente para entender o caso do aluno, entrar em contato com o responsável e propor o acompanhamento. Pedimos só o necessário e o consentimento do responsável antes do envio.</p>
         <p><b>Onde ficam.</b> Os dados enviados são registrados em uma planilha de acesso restrito da equipe. Ao continuar pelo WhatsApp, a conversa passa a seguir as regras daquele serviço.</p>
-        <p><b>Seus direitos (LGPD).</b> O responsável pode pedir acesso, correção ou exclusão dos dados dele e do aluno, ou retirar o consentimento, a qualquer momento{site.email ? <>, pelo e-mail <a className="underline" href={`mailto:${site.email}`}>{site.email}</a></> : ' pelos canais de contato da Aegis Educational'}.</p>
+        <p><b>Seus direitos (LGPD).</b> O responsável pode pedir acesso, correção ou exclusão dos dados dele e do aluno, ou retirar o consentimento, a qualquer momento{site.email ? <>, pelo e-mail <a className="underline" href={`mailto:${site.email}`}>{site.email}</a></> : ' pelos canais de contato da Aegis'}.</p>
         <p className="rounded-sm border border-line bg-white/[0.03] p-4 text-sm text-mute">Revisão jurídica pendente: antes da publicação, este texto deve ser revisado por advogado e completado com a razão social, o CNPJ e o encarregado de dados da empresa.</p>
       </div>
     </Wrap></main>

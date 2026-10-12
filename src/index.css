@@ -13,8 +13,6 @@
 }
 
 html {
-  background-color: var(--color-black);
-  min-height: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
 }
@@ -26,14 +24,7 @@ body {
   color: var(--color-text-main);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
-  min-height: 100dvh;
   overflow-x: hidden;
-}
-
-#root {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background-color: var(--color-black);
 }
 
 h1, h2, h3, h4 {

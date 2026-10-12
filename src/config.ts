@@ -12,7 +12,7 @@ const env = import.meta.env
 
 export const site = {
   name: 'Aegis Educational',
-  short: 'Aegis Educational',
+  short: 'Aegis',
   url: (env.VITE_SITE_URL as string | undefined) ?? '',
   whatsappNumber: ((env.VITE_WHATSAPP_NUMBER as string | undefined) || WHATSAPP_NUMBER).replace(/\D/g, ''),
   email: (env.VITE_CONTACT_EMAIL as string | undefined) ?? '',
@@ -27,7 +27,7 @@ export const messages = {
   teacher: 'Olá, sou professor(a) e gostaria de conversar sobre fazer parte da equipe da Aegis Educational.',
 }
 
-export const subjects = ['Matemática', 'Física', 'Química'] as const
+export const subjects = ['Matemática', 'Física', 'Química', 'Biologia'] as const
 
 /** Preços informados pela empresa. Valores por aula e economia são CALCULADOS a partir destes números. */
 export const singleLesson = { label: 'Aula individual', lessons: 1, price: 135.5 }
