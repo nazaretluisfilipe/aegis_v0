@@ -9,7 +9,7 @@ const lessons:Lesson[]=[
  {id:3,subject:'Física',date:'17/10/2026, 14h',teacher:'Professor demonstrativo',status:'cancelled',description:'Aula cancelada sem consumo de saldo'}
 ]
 const statuses={completed:'Realizada',scheduled:'Agendada',cancelled:'Cancelada'}
-const card='glass-panel rounded-2xl border border-white/10 p-5 sm:p-6'
+const card='aegis-card glass-panel rounded-2xl border border-white/10 p-5 sm:p-6'
 const pill='inline-flex items-center rounded-full border border-amber-400/50 bg-amber-500/10 px-3 py-1 text-xs font-semibold tracking-wide text-amber-200'
 
 export default function PortalExample(){
@@ -19,12 +19,12 @@ export default function PortalExample(){
    <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8">
     <a href="/"><Brand compact /></a>
     <div className="flex flex-wrap items-center gap-2">
-     <span className={pill}>DEMONSTRAÇÃO FICTÍCIA</span>
-     <a href="/responsavel" className={btnGhost+' !px-4 !py-2'}><LockKeyhole size={15} aria-hidden/> Entrar de verdade</a>
+     <span className={pill+' order-last w-full justify-center sm:order-first sm:w-auto'}>DEMONSTRAÇÃO FICTÍCIA</span>
+     <a href="/responsavel" className={btnGhost+' !px-3 !py-2 sm:!px-4'}><LockKeyhole size={15} aria-hidden/><span className="sm:hidden">Portal real</span><span className="hidden sm:inline">Entrar de verdade</span></a>
     </div>
    </div>
   </header>
-  <div className="mx-auto max-w-6xl space-y-7 px-5 py-9 sm:px-8 sm:py-12">
+  <div className="mx-auto max-w-6xl space-y-7 px-4 py-7 sm:px-8 sm:py-12">
    <section className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-5" role="note">
     <b className="text-amber-200">ESTA É UMA SIMULAÇÃO VISUAL — NÃO É UMA CONTA REAL</b>
     <p className="mt-2 text-sm leading-relaxed text-white/70">Todas as pessoas, aulas, indicadores e relatórios nesta página são exemplos fictícios. Nada aqui vem de um aluno real ou do Supabase. Para testar o login e a integração real, use o Laboratório de testes no painel administrativo.</p>
@@ -39,7 +39,7 @@ export default function PortalExample(){
    <nav aria-label="Navegação da demonstração" className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[.03] p-2">
     {([['inicio','Visão geral'],['agenda','Agenda e aulas'],['relatorios','Acompanhamento']] as const).map(([id,label])=>
       <button key={id} type="button" onClick={()=>setTab(id)}
-       aria-current={tab===id?'page':undefined} className={'rounded-xl px-4 py-3 text-sm font-medium transition-colors '+(tab===id?'bg-[#2F7BFF]/20 text-white ring-1 ring-[#2F7BFF]/50':'text-white/60 hover:bg-white/10 hover:text-white')}>
+       aria-pressed={tab===id} className={'aegis-tab min-h-11 flex-1 rounded-xl px-3 py-3 text-xs font-medium sm:flex-none sm:px-4 sm:text-sm '+(tab===id?'bg-[#2F7BFF]/20 text-white ring-1 ring-[#2F7BFF]/50':'text-white/60 hover:bg-white/10 hover:text-white')}>
        {label}</button>)}
    </nav>
    {tab==='inicio'&&<>
