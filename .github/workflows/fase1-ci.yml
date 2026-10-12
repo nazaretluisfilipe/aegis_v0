@@ -24,3 +24,6 @@ jobs:
         run: node supabase/tests/admin.test.mjs
       - name: Testar cadastros e RLS da Fase 1
         run: node supabase/tests/families.test.mjs
+
+      - name: Verificar contratos de seguranca do portal
+        run: node --test supabase/tests/portal-contract.test.mjs
