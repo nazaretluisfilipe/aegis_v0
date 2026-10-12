@@ -59,7 +59,7 @@ function Hero() {
       <Wrap className="relative z-10 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)] lg:items-center lg:gap-10 xl:gap-14">
         <div className="min-w-0">
           <Eyebrow>Aegis Educational · Acompanhamento de Elite</Eyebrow>
-          <h1 className="aegis-intro mt-5 max-w-3xl break-normal text-[clamp(1.625rem,8.3vw,2.25rem)] leading-[1.13] [overflow-wrap:normal] sm:text-[clamp(3rem,6vw,3.75rem)] lg:text-[clamp(2.9rem,4.4vw,3.5rem)] xl:text-[3.65rem] font-bold">
+          <h1 className="aegis-intro mt-5 max-w-3xl break-normal text-[clamp(1.325rem,8.3vw,2.25rem)] leading-[1.13] [overflow-wrap:normal] sm:text-[clamp(3rem,6vw,3.75rem)] lg:text-[clamp(2.9rem,4.4vw,3.5rem)] xl:text-[3.65rem] font-bold">
             {content.heroTitle}
           </h1>
           <p className="aegis-intro aegis-intro-delayed mt-6 max-w-xl text-base leading-relaxed text-white/70 sm:mt-8 sm:text-lg xl:text-xl">
