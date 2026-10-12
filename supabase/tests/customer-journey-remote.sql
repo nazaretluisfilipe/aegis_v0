@@ -54,6 +54,8 @@ begin
   values(v_family,v_student,v_package,'Matemática','[TESTE — FICTÍCIO] Docente simulado',
     now()+interval '3 days',60,'scheduled')
   returning id into v_lesson_future;
+  insert into public.lesson_materials(lesson_id,title,storage_path,active)
+  values(v_lesson,'[TESTE — FICTÍCIO] Material da aula',v_lesson::text||'/roteiro-teste.pdf',true);
   insert into public.educational_reports(lesson_id,title,contents,difficulties,strengths)
   values(v_lesson,'[TESTE — FICTÍCIO] Relatório por aula','Frações e equações',
     'Dificuldade fictícia na simplificação','Participação fictícia')
@@ -84,7 +86,7 @@ update public.profiles set role='parent' where id=auth.uid();
 set local role authenticated;
 do $parent$
 declare v_family uuid; v_packages integer; v_completed integer; v_reports integer;
-  v_admin_tables integer; v_changed integer;
+  v_admin_tables integer; v_changed integer; v_materials integer; v_students integer;
 begin
   v_family:=current_setting('aegis.client_test_family')::uuid;
   if public.is_admin() or not public.aegis_is_guardian_of(v_family) then
@@ -98,6 +100,10 @@ begin
   if v_packages<>1 or v_completed<>1 or v_reports<>1 then
     raise exception 'FAIL: portal sem conteúdo: plano %, aulas %, relatórios %',
     v_packages,v_completed,v_reports;end if;
+  select count(*) into v_students from public.students;
+  if v_students<>1 then raise exception 'FAIL: isolamento de estudantes falhou';end if;
+  select count(*) into v_materials from public.lesson_materials;
+  if v_materials<>1 then raise exception 'FAIL: material não visível para família';end if;
   select count(*) into v_admin_tables from public.lead_requests;
   if v_admin_tables<>0 then raise exception 'FAIL: CRM visível no portal';end if;
   update public.lessons set status='cancelled' where family_id=v_family;
