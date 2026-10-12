@@ -60,3 +60,18 @@ test('editor carrega a versão publicada e preserva preços ao editar textos',as
  assert.match(source,/all\.find\(v=>v\.published&&validContent\(v\.content\)\)/)
  assert.match(source,/if\(published\)setForm\(published\.content\)/)
 })
+
+test('formulário registra leads no CRM interno sem desviar para endpoint externo',async()=>{
+ const source=await read('src/lib.ts')
+ assert.match(source,/\.from\('lead_requests'\)\.insert\(/)
+ assert.match(source,/return error \? 'error' : 'sent'/)
+ assert.doesNotMatch(source,/fetch\(site\.leadsEndpoint/)
+})
+test('RLS separa INSERT anônimo do cadastro de demonstração administrativo',async()=>{
+ const source=await read('supabase/migrations/20261012190530_lead_anon_insert_policy_split.sql')
+ assert.match(source,/leads_public_insert/)
+ assert.match(source,/to anon with check/i)
+ assert.match(source,/not is_demo/)
+ assert.match(source,/leads_authenticated_insert/)
+ assert.match(source,/to authenticated with check/i)
+})
