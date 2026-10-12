@@ -191,6 +191,8 @@ function Field({ id, label, error, children, wide }: { id: string; label: string
 }
 
 function LeadForm() {
+  const content=useSiteContent()
+  const hasWhatsApp=!!(content.whatsapp||site.whatsappNumber)
   const [v, setV] = useState<Lead>(emptyLead)
   const [touched, setTouched] = useState(false)
   const [state, setState] = useState<'idle' | 'sending' | SubmitResult>('idle')
@@ -207,9 +209,9 @@ function LeadForm() {
     const ok = state === 'sent'
     return (
       <div role="status" className="self-start rounded-sm border border-line bg-white/[0.03] p-8">
-        <h3 className="text-2xl">{ok ? 'Recebemos as informações.' : 'Continue pelo WhatsApp.'}</h3>
-        <p className="mt-3 leading-relaxed text-graphite">{ok ? 'Nossa equipe vai chamar você para conversar sobre o aluno. Se preferir adiantar, envie um resumo pelo WhatsApp.' : 'Não conseguimos registrar o formulário automaticamente. Para não perder tempo, envie as informações direto pelo WhatsApp.'}</p>
-        <Cta message={msg} className={btn + ' mt-6'}><MessageCircle size={16} aria-hidden />Continuar pelo WhatsApp</Cta>
+        <h3 className="text-2xl">{ok ? 'Recebemos as informações.' : hasWhatsApp?'Continue pelo WhatsApp.':'Não foi possível enviar.'}</h3>
+        <p className="mt-3 leading-relaxed text-graphite">{ok ? 'Nossa equipe entrará em contato para conversar sobre o aluno.' : hasWhatsApp?'Não conseguimos registrar o formulário. Você pode enviar as informações pelo WhatsApp.':'Suas informações continuam neste formulário. Tente novamente em alguns instantes.'}</p>
+        {hasWhatsApp&&<Cta message={msg} className={btn + ' mt-6'}><MessageCircle size={16} aria-hidden />Continuar pelo WhatsApp</Cta>}
         {!ok && <button onClick={() => setState('idle')} className="mt-4 block text-sm text-mute underline underline-offset-4">Voltar e tentar de novo</button>}
       </div>
     )
@@ -261,12 +263,14 @@ function Diagnostic() {
 }
 
 function Footer() {
+  const content=useSiteContent()
+  const email=content.email||site.email
   return (
     <footer className="bg-ink pb-28 pt-14 text-paper md:pb-14"><Wrap className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
       <div><Brand className="text-3xl" /><p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">Acompanhamento educacional individual em Matemática, Física e Química.</p></div>
       <ul className="space-y-2 text-sm text-white/80">{nav.map(([n, h]) => <li key={h}><a href={h} className="hover:text-white">{n}</a></li>)}<li><a href="#diagnostico" className="hover:text-white">Solicitar diagnóstico</a></li></ul>
       <ul className="space-y-2 text-sm text-white/80">
-        {site.email && <li><a href={`mailto:${site.email}`} className="hover:text-white">{site.email}</a></li>}
+        {email && <li><a href={`mailto:${email}`} className="hover:text-white">{email}</a></li>}
         <li><a href="/privacidade" className="hover:text-white">Política de Privacidade</a></li>
         <li><Cta message={messages.teacher} className="hover:text-white" icon={false}>Sou professor e quero conversar</Cta></li>
       </ul>

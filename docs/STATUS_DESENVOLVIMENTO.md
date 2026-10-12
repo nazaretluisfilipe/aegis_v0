@@ -34,3 +34,8 @@ O teste `supabase/tests/remote-smoke.sql` passou no banco remoto: cadastro, conc
 
 ## Verificação
 `npm test`: 49 verificações locais aprovadas. `npm run build`: TypeScript e Vite aprovados.
+
+## Entrega no GitHub e prévia
+Commit inicial desta entrega: `e6532aea2113225a1ba414a02abfd5a7084930bc`.
+Prévia solicitada no Vercel: `dpl_4eM84roeUBULMMFfhmnirJYxDA5W` (staging), sem alterar os domínios institucionais.
+A tentativa de teste visual local foi bloqueada pela ausência do Chromium e falha de download do binário. Não classificar layout móvel nem fluxo autenticado de navegador como validados.
