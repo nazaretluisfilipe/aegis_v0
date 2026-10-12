@@ -1,43 +1,57 @@
-# Aegis Educational — site
+# Aégis Educational — base administrativa revisada
 
-Estado atual: **Fase 1 pronta** (site público, formulário, WhatsApp configurável, Google Sheets preparado, SEO, deploy).
-**Ainda não existem** login, áreas do responsável/aluno, admin e CMS (Fases 2 a 4 abaixo). Nada disso aparece no site como se existisse.
+Comece por **COMECE_AQUI.md**. Planejamento completo: **PLANO_IMPLANTACAO.md**.
 
-## Tecnologia
-Vite + React 18 + TypeScript + Tailwind 3 (a mesma stack do site original). Site estático: sem servidor para manter.
+React 18 + Vite 5 + TypeScript + Tailwind. Hospedagem prevista: Vercel existente.
+Esta revisão mantém o projeto, identidade visual, preços e integração Apps Script.
 
-## Rodar localmente
-1. Instale o Node 20+. 2. `npm install` 3. copie `.env.example` para `.env.local` e preencha 4. `npm run dev` (abre em localhost:5173).
+## O que está pronto no código
+- Site público com Biologia, aulas de 50 minutos e combinação de disciplinas.
+- `/admin` com autenticação Supabase e verificação `is_admin()` no banco.
+- Instalação mínima: somente `profiles`, RLS, função de permissão e gatilho Auth.
+- Falhas de rede no login retornam mensagem e liberam o botão para tentar novamente.
+- Permissão revalidada nos eventos de sessão e ao voltar à janela.
+- Chave publicável e URL fornecidas pelo usuário em `.env.example`. Não contém segredo.
 
-## Onde configurar
-| O quê | Onde |
-|---|---|
-| Número do WhatsApp (todos os botões) | `VITE_WHATSAPP_NUMBER` (só dígitos, `55` + DDD + número). Vazio = botões levam ao formulário |
-| Mensagens pré-preenchidas | `src/config.ts` → `messages` |
-| Preços e planos | `src/config.ts` → `singleLesson` e `plans` (valor por aula e economia são calculados sozinhos) |
-| Logo definitiva | ponha o arquivo em `public/` e preencha `LOGO_SRC` em `src/App.tsx` |
-| Domínio nos metadados | `VITE_SITE_URL`, e troque `SEU-DOMINIO.com.br` em `public/robots.txt` e `public/sitemap.xml` |
+## O que ainda não está pronto
+- Gestão de famílias, professores, pagamentos, aulas e relatórios: telas de estrutura.
+- Formulário ainda usa Google Apps Script, não grava no Supabase.
+- Nenhuma alteração foi aplicada na conta Supabase, GitHub, Vercel ou DNS.
+- Login real e comportamento visual no navegador ainda aguardam validação.
+- SQL completo em `_arquivo` é referência futura, não uma migration executável.
+- Os arquivos antigos em `src/pages`, `src/contexts`, `src/supabase.ts` e `ProtectedRoute` não estão ligados ao ponto de entrada ativo; não representam módulos entregues.
 
-## Google Sheets (único passo que falta: sua conta Google)
-1. Crie uma planilha no Google Sheets e copie o ID da URL (trecho entre `/d/` e `/edit`).
-2. Em script.google.com, crie um projeto e cole `apps-script/Code.gs`.
-3. Configurações do projeto → Propriedades do script → `SHEET_ID` = o ID copiado.
-4. Implantar → Nova implantação → App da Web → executar como **você**, acesso **Qualquer pessoa**. Copie a URL `.../exec`.
-5. Cadastre a URL em `VITE_LEADS_ENDPOINT` (local e na hospedagem) e refaça o build.
-6. Teste: envie o formulário e confira a nova linha. Para trocar de planilha, mude `SHEET_ID`.
-Campos enviados: responsável (nome, WhatsApp, e-mail), aluno (nome, idade, série, escola, disciplinas, objetivo, dificuldades, disponibilidade, frequência, observações), consentimento e origem.
-Sem a URL, o formulário **não finge sucesso**: oferece continuar pelo WhatsApp. Limitação: a URL do Apps Script é pública; por isso há honeypot, validação no script e limite de tamanho. Para volume alto, use o Supabase (Fase 2).
+## Desenvolvimento
+Node 22 ou superior recomendado (verificação realizada com Node 24).
+```sh
+npm ci
+# Copiar .env.example para .env.local antes de rodar o app.
+npm run dev
+npm run build
+npm run test:admin
+```
 
-## Publicar
-Recomendado: **Vercel** (grátis para começar, HTTPS automático, `vercel.json` já cuida de rotas e cabeçalhos de segurança).
-1. Crie conta no GitHub e suba o projeto (o `.gitignore` já exclui `.env`). 2. Em vercel.com: Add New → Project → importe o repositório (Vite é detectado). 3. Settings → Environment Variables: cadastre as 4 variáveis do `.env.example`. 4. Deploy.
-**Domínio .com.br:** registre em registro.br; na Vercel: Settings → Domains → adicione `seudominio.com.br` e `www`. Aplique no Registro.br os registros DNS que a Vercel mostrar (A para o domínio raiz, CNAME para `www`). O HTTPS é emitido automaticamente em minutos a horas.
+O teste usa PostgreSQL embarcado PGlite, em memória, e não acessa dados reais.
+Simula apenas a estrutura necessária de Auth. Não testa Supabase Auth, PostgREST,
+Storage, envio de e-mail ou a interface do navegador de ponta a ponta.
 
-## Pendências antes de divulgar
-- Preencher o WhatsApp e o endpoint do Sheets.
-- Revisão jurídica da Política de Privacidade (`/privacidade`): razão social, CNPJ e encarregado de dados.
-- Professores: a seção explica a curadoria; só mostre nomes e fotos reais quando houver cadastro.
-- Confirmar se há aulas presenciais (o site hoje diz só "online").
+## Configuração
+- `VITE_SUPABASE_URL`: URL base sem `/rest/v1/`.
+- `VITE_SUPABASE_ANON_KEY`: aceita a chave publishable fornecida, apesar do nome legado.
+- `VITE_WHATSAPP_NUMBER`: número real completo, somente dígitos.
+- `VITE_CONTACT_EMAIL`: e-mail real de atendimento.
+- `VITE_SITE_URL`: endereço de produção validado.
+- `VITE_LEADS_ENDPOINT`: implantação Apps Script atual, preservada na Vercel.
 
-## Próximas fases (arquitetura decidida)
-Supabase (Postgres + Auth + Storage) com **Row Level Security**: autorização no banco, não no front, contra IDOR. Fase 2: login, tabelas, áreas responsável/aluno. Fase 3: aulas (link do Meet manual), materiais (bucket privado com URLs assinadas), relatórios. Fase 4: admin e edição de conteúdo.
+Nunca colocar chave secret/service_role em variável VITE_. A autorização depende do banco.
+
+## Mudanças principais
+- `supabase/migrations/0001_admin.sql`: substitui instalação monolítica por base mínima.
+- `supabase/02_promover_admin.sql`: promoção explícita de conta confirmada pelo SQL Editor.
+- `src/admin/AdminAuth.tsx`, `AdminApp.tsx`, `supabaseAdmin.ts`: tratamento de conexão e revalidação.
+- `src/config.ts`, `src/App.tsx`, `index.html`: Biologia e duração comercial de 50 minutos.
+- `supabase/tests/admin.test.mjs`: 16 verificações automáticas de permissão.
+
+Referências técnicas consultadas em 12/10/2026:
+https://supabase.com/docs/guides/getting-started/api-keys
+https://supabase.com/docs/guides/database/postgres/row-level-security
