@@ -6,7 +6,7 @@ type Package={id:string;title:string;family_id:string}
 type Lesson={id:string;student_id:string;subject:string;teacher_name:string;starts_at:string;status:string;meet_url:string|null;package_id:string|null}
 type Material={id:string;lesson_id:string;title:string;storage_path:string}
 const field='w-full rounded-xl border border-white/20 bg-[#080d19] p-3 text-white'
-const initial={student_id:'',package_id:'',subject:'Matemática',teacher_name:'',starts_at:'',meet_url:''}
+const initial={student_id:'',package_id:'',subject:'Matemática',teacher_name:'',starts_at:'',meet_url:'',status:'scheduled'}
 export default function Lessons(){
  const [students,setStudents]=useState<Student[]>([]),[packages,setPackages]=useState<Package[]>([]),[lessons,setLessons]=useState<Lesson[]>([]),[materials,setMaterials]=useState<Material[]>([])
  const [form,setForm]=useState(initial),[edit,setEdit]=useState(''),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('')
@@ -28,7 +28,7 @@ export default function Lessons(){
   if(!chosen||!form.teacher_name.trim()||!form.starts_at||!validMeet(form.meet_url)){setError('Selecione o aluno, informe professor e horário, e confira o link do Google Meet.');return}
   if(form.package_id&&!packages.some(p=>p.id===form.package_id&&p.family_id===chosen.family_id)){setError('O pacote não pertence ao responsável desse aluno.');return}
   setBusy(true);setError('');setNotice('')
-  const data={family_id:chosen.family_id,student_id:chosen.id,package_id:form.package_id||null,subject:form.subject,teacher_name:form.teacher_name.trim(),starts_at:new Date(form.starts_at).toISOString(),meet_url:form.meet_url.trim()||null}
+  const data={family_id:chosen.family_id,student_id:chosen.id,package_id:form.package_id||null,subject:form.subject,teacher_name:form.teacher_name.trim(),starts_at:new Date(form.starts_at).toISOString(),meet_url:form.meet_url.trim()||null,status:form.status}
   const r=edit?await db.from('lessons').update(data).eq('id',edit):await db.from('lessons').insert(data)
   setBusy(false)
   if(r.error){setError('Não foi possível salvar. Confira datas, vínculo do aluno e permissões.');return}
@@ -56,11 +56,12 @@ export default function Lessons(){
     <label>Professor *<input required className={field} value={form.teacher_name} onChange={e=>setForm({...form,teacher_name:e.target.value})}/></label>
     <label>Data e horário *<input required type="datetime-local" className={field} value={form.starts_at} onChange={e=>setForm({...form,starts_at:e.target.value})}/></label>
     <label>Pacote contratado<select className={field} value={form.package_id} onChange={e=>setForm({...form,package_id:e.target.value})}><option value="">Sem pacote associado</option>{packages.filter(p=>p.family_id===chosen?.family_id).map(p=><option key={p.id} value={p.id}>{p.title}</option>)}</select></label>
+    <label>Situação<select className={field} value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="scheduled">Agendada</option><option value="completed">Realizada</option><option value="cancelled">Cancelada</option></select></label>
     <label>Link do Google Meet<input type="url" placeholder="https://meet.google.com/abc-defg-hij" className={field} value={form.meet_url} onChange={e=>setForm({...form,meet_url:e.target.value})}/></label>
     <button disabled={busy} className={btn+' sm:col-span-2'}>{busy?'Salvando...':'Salvar aula'}</button>
    </form></section>
   <section className="glass-panel rounded-2xl p-5"><h2 className="mb-4 text-xl">Aulas cadastradas</h2>
-   {loading?<p>Carregando...</p>:lessons.length===0?<p className="text-mute">Nenhuma aula registrada.</p>:<div className="space-y-3">{lessons.map(l=><div key={l.id} className="rounded-xl border border-white/10 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><b>{l.subject}</b><p className="text-sm text-mute">{students.find(s=>s.id===l.student_id)?.full_name||'Aluno'} · {new Date(l.starts_at).toLocaleString('pt-BR')} · {l.teacher_name} · {l.status}</p><p className="text-sm text-mute">{materials.filter(m=>m.lesson_id===l.id).length} materiais</p></div><button className={btn} onClick={()=>{setEdit(l.id);setForm({student_id:l.student_id,package_id:l.package_id||'',subject:l.subject,teacher_name:l.teacher_name,starts_at:new Date(new Date(l.starts_at).getTime()-new Date(l.starts_at).getTimezoneOffset()*60000).toISOString().slice(0,16),meet_url:l.meet_url||''});window.scrollTo({top:0,behavior:'smooth'})}}>Editar / Meet</button></div></div>)}</div>}
+   {loading?<p>Carregando...</p>:lessons.length===0?<p className="text-mute">Nenhuma aula registrada.</p>:<div className="space-y-3">{lessons.map(l=><div key={l.id} className="rounded-xl border border-white/10 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><b>{l.subject}</b><p className="text-sm text-mute">{students.find(s=>s.id===l.student_id)?.full_name||'Aluno'} · {new Date(l.starts_at).toLocaleString('pt-BR')} · {l.teacher_name} · {l.status}</p><p className="text-sm text-mute">{materials.filter(m=>m.lesson_id===l.id).length} materiais</p></div><button className={btn} onClick={()=>{setEdit(l.id);setForm({student_id:l.student_id,package_id:l.package_id||'',subject:l.subject,teacher_name:l.teacher_name,starts_at:new Date(new Date(l.starts_at).getTime()-new Date(l.starts_at).getTimezoneOffset()*60000).toISOString().slice(0,16),meet_url:l.meet_url||'',status:l.status});window.scrollTo({top:0,behavior:'smooth'})}}>Editar / Meet</button></div></div>)}</div>}
   </section>
   <section className="glass-panel rounded-2xl p-5"><h2 className="mb-4 text-xl">Adicionar material complementar</h2><form className="grid gap-4 sm:grid-cols-2" onSubmit={upload}>
    <label>Aula<select required className={field} value={fileLesson} onChange={e=>setFileLesson(e.target.value)}><option value="">Selecione</option>{lessons.map(l=><option value={l.id} key={l.id}>{l.subject} · {new Date(l.starts_at).toLocaleString('pt-BR')}</option>)}</select></label>
