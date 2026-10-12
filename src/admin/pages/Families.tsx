@@ -34,7 +34,7 @@ export default function Families(){
  async function save(e:FormEvent){
   e.preventDefault();if(!db||saving)return
   const problem=kind==='family'&&!editId ? (valid(form,'family')||valid(form,'guardian')) : valid(form,kind);if(problem){setError(problem);return}
-  if(kind!=='family'&&!familyId){setError('Selecione uma família.');return}
+  if(kind!=='family'&&!familyId){setError('Selecione um responsável.');return}
   setSaving(true);setError('');setNotice('')
   try{
    let result: {error:{code?:string}|null}
@@ -51,21 +51,21 @@ export default function Families(){
  }
  const family=families.find(f=>f.id===familyId)
  return <div className="space-y-6">
-  <PageHeader title="Famílias e alunos">Cadastro administrativo no Supabase. Nenhuma conta de aluno será criada.</PageHeader>
+  <PageHeader title="Responsáveis e alunos">Cadastro de responsáveis e seus alunos no Supabase. Nenhuma conta de aluno será criada.</PageHeader>
   {error&&<p role="alert" className="rounded-xl border border-red-500/40 p-4 text-red-200">{error}</p>}
   {notice&&<p role="status" className="rounded-xl border border-blue-500/40 p-4">{notice}</p>}
   <div className="glass-panel rounded-2xl p-5">
-   <div className="flex flex-wrap justify-between gap-3"><h2 className="text-xl">Famílias cadastradas</h2><button className={btnGhost} disabled={loading} onClick={()=>void reload()}>Atualizar</button></div>
-   {loading?<p className="mt-4 text-mute">Carregando...</p>:families.length===0?<p className="mt-4 text-mute">Nenhuma família cadastrada.</p>:<div className="mt-4 space-y-2">{families.map(f=><button key={f.id} onClick={()=>{setFamilyId(f.id);begin('family',f.id,f)}} className={'w-full rounded-xl border p-3 text-left '+(familyId===f.id?'border-blue-400':'border-white/20')}><b>{f.name}</b><span className="ml-3 text-sm text-mute">{guardians.filter(g=>g.family_id===f.id).length} responsáveis · {students.filter(s=>s.family_id===f.id).length} alunos</span></button>)}</div>}
+   <div className="flex flex-wrap justify-between gap-3"><h2 className="text-xl">Responsáveis cadastrados</h2><button className={btnGhost} disabled={loading} onClick={()=>void reload()}>Atualizar</button></div>
+   {loading?<p className="mt-4 text-mute">Carregando...</p>:families.length===0?<p className="mt-4 text-mute">Nenhum responsável cadastrado.</p>:<div className="mt-4 space-y-2">{families.map(f=><button key={f.id} onClick={()=>{setFamilyId(f.id);begin('family',f.id,f)}} className={'w-full rounded-xl border p-3 text-left '+(familyId===f.id?'border-blue-400':'border-white/20')}><b>{f.name}</b><span className="ml-3 text-sm text-mute">{guardians.filter(g=>g.family_id===f.id).length} responsáveis · {students.filter(s=>s.family_id===f.id).length} alunos</span></button>)}</div>}
   </div>
   {family&&<div className="glass-panel space-y-5 rounded-2xl p-5"><h2 className="text-xl">{family.name}</h2>
     <h3>Responsáveis</h3>{guardians.filter(g=>g.family_id===familyId).map(g=><div key={g.id} className="flex items-center justify-between border-b border-white/10 pb-2"><span>{g.full_name} <span className="text-mute">· {g.email} · {g.phone}</span></span><button className={btnGhost} onClick={()=>begin('guardian',g.id,g)}>Editar</button></div>)}
     <h3>Alunos</h3>{students.filter(s=>s.family_id===familyId).map(s=><div key={s.id} className="flex items-center justify-between border-b border-white/10 pb-2"><span>{s.full_name} <span className="text-mute">· {s.school_grade}</span></span><button className={btnGhost} onClick={()=>begin('student',s.id,s)}>Editar</button></div>)}
-    <div className="flex flex-wrap gap-3"><button className={btnGhost} onClick={()=>begin('guardian')}>+ Responsável</button><button className={btnGhost} onClick={()=>begin('student')}>+ Aluno</button><button className={btnGhost} onClick={()=>begin('family',family.id,family)}>Editar família</button></div>
+    <div className="flex flex-wrap gap-3"><button className={btnGhost} onClick={()=>begin('guardian')}>+ Responsável</button><button className={btnGhost} onClick={()=>begin('student')}>+ Aluno</button><button className={btnGhost} onClick={()=>begin('family',family.id,family)}>Editar cadastro</button></div>
   </div>}
-  <section className="glass-panel rounded-2xl p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl">{editId?'Editar':kind==='family'?'Nova família':kind==='guardian'?'Novo responsável':'Novo aluno'}</h2><button className={btnGhost} onClick={()=>begin('family')}>Nova família</button></div>
+  <section className="glass-panel rounded-2xl p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl">{editId?'Editar':kind==='family'?'Novo responsável':kind==='guardian'?'Novo responsável':'Novo aluno'}</h2><button className={btnGhost} onClick={()=>begin('family')}>Novo responsável</button></div>
    <form onSubmit={save} className="mt-5 grid gap-4 sm:grid-cols-2">
-    {kind==='family'&&<label>Identificação da família *<input required maxLength={120} className={field} value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label>}
+    {kind==='family'&&<label>Identificação interna *<input required maxLength={120} className={field} value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label>}
     {kind!=='family'||!editId?<><label>Nome do {kind==='student'?'aluno':'responsável'} *<input required maxLength={120} className={field} value={form.full_name} onChange={e=>setForm({...form,full_name:e.target.value})}/></label>
     {kind!=='student'&&<><label>E-mail *<input required type="email" maxLength={254} className={field} value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>Telefone com DDD *<input required type="tel" className={field} value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></label></>}
     {kind==='student'&&<label>Série escolar *<input required maxLength={70} className={field} value={form.school_grade} onChange={e=>setForm({...form,school_grade:e.target.value})}/></label>}</>:null}
