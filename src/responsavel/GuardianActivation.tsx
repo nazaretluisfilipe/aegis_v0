@@ -13,8 +13,13 @@ export default function GuardianActivation(){
   const check=async()=>{
    const {data:{user}}=await db!.auth.getUser()
    if(!mounted)return
-   if(user){setEmail(user.email||'');setStatus('ready')}
-   else setStatus('missing')
+   if(user&&user.email_confirmed_at){
+    const {data:profile,error:profileError}=await db!.from('profiles').select('role,active').eq('id',user.id).maybeSingle()
+    if(!mounted)return
+    if(!profileError&&profile?.active&&profile.role==='parent'){
+     setEmail(user.email||'');setStatus('ready')
+    }else setStatus('missing')
+   }else setStatus('missing')
   }
   const {data}=db.auth.onAuthStateChange((_event,session)=>{
    if(session)queueMicrotask(()=>{void check()})
