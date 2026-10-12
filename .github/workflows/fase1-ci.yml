@@ -42,5 +42,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Navegar pelo site oficial sem criar clientes
         run: node scripts/public-browser-smoke.mjs
+      - name: Auditoria responsiva somente leitura
+        run: node scripts/responsive-visual-audit.mjs
         env:
           AEGIS_BASE_URL: https://www.aegisedu.com.br
