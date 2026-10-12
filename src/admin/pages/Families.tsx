@@ -49,6 +49,14 @@ export default function Families(){
    await reload();begin('family');setNotice('Operação confirmada pelo Supabase. Consulte a lista atualizada.')
   }catch{setError('Conexão interrompida. Confira os registros antes de tentar novamente.')}finally{setSaving(false)}
  }
+ async function linkGuardian(id:string){
+  if(!db||saving)return
+  setSaving(true);setError('');setNotice('')
+  const {data,error}=await db.rpc('aegis_link_guardian',{p_guardian_id:id})
+  setSaving(false)
+  if(error){setError('Não foi possível vincular a conta. Confira a migração 0003 e suas permissões.');return}
+  setNotice(data===true?'Conta confirmada vinculada ao responsável.':'Conta ainda não localizada ou e-mail não confirmado. Envie um convite em Supabase → Authentication → Users → Invite user e peça que confirme o e-mail antes de repetir.')
+ }
  const family=families.find(f=>f.id===familyId)
  return <div className="space-y-6">
   <PageHeader title="Responsáveis e alunos">Cadastro de responsáveis e seus alunos no Supabase. Nenhuma conta de aluno será criada.</PageHeader>
@@ -59,7 +67,7 @@ export default function Families(){
    {loading?<p className="mt-4 text-mute">Carregando...</p>:families.length===0?<p className="mt-4 text-mute">Nenhum responsável cadastrado.</p>:<div className="mt-4 space-y-2">{families.map(f=><button key={f.id} onClick={()=>{setFamilyId(f.id);begin('family',f.id,f)}} className={'w-full rounded-xl border p-3 text-left '+(familyId===f.id?'border-blue-400':'border-white/20')}><b>{f.name}</b><span className="ml-3 text-sm text-mute">{guardians.filter(g=>g.family_id===f.id).length} responsáveis · {students.filter(s=>s.family_id===f.id).length} alunos</span></button>)}</div>}
   </div>
   {family&&<div className="glass-panel space-y-5 rounded-2xl p-5"><h2 className="text-xl">{family.name}</h2>
-    <h3>Responsáveis</h3>{guardians.filter(g=>g.family_id===familyId).map(g=><div key={g.id} className="flex items-center justify-between border-b border-white/10 pb-2"><span>{g.full_name} <span className="text-mute">· {g.email} · {g.phone}</span></span><button className={btnGhost} onClick={()=>begin('guardian',g.id,g)}>Editar</button></div>)}
+    <h3>Responsáveis</h3>{guardians.filter(g=>g.family_id===familyId).map(g=><div key={g.id} className="flex items-center justify-between border-b border-white/10 pb-2"><span>{g.full_name} <span className="text-mute">· {g.email} · {g.phone}</span></span><span className="flex flex-wrap gap-2"><button className={btnGhost} onClick={()=>begin('guardian',g.id,g)}>Editar</button><button disabled={saving} className={btnGhost} onClick={()=>void linkGuardian(g.id)}>Vincular acesso confirmado</button></span></div>)}
     <h3>Alunos</h3>{students.filter(s=>s.family_id===familyId).map(s=><div key={s.id} className="flex items-center justify-between border-b border-white/10 pb-2"><span>{s.full_name} <span className="text-mute">· {s.school_grade}</span></span><button className={btnGhost} onClick={()=>begin('student',s.id,s)}>Editar</button></div>)}
     <div className="flex flex-wrap gap-3"><button className={btnGhost} onClick={()=>begin('guardian')}>+ Responsável</button><button className={btnGhost} onClick={()=>begin('student')}>+ Aluno</button><button className={btnGhost} onClick={()=>begin('family',family.id,family)}>Editar cadastro</button></div>
   </div>}
