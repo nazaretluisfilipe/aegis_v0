@@ -1,3 +1,4 @@
+import {supabaseAdmin as db} from './admin/supabaseAdmin'
 import { site } from './config'
 
 /** Link do WhatsApp; sem número configurado, cai no formulário (#diagnostico) em vez de gerar link quebrado. */
@@ -37,7 +38,14 @@ export type SubmitResult = 'sent' | 'not-configured' | 'error'
 /** Envia o lead ao endpoint (Google Apps Script). NUNCA retorna 'sent' sem confirmação JSON {ok:true} do servidor. */
 export async function submitLead(l: Lead): Promise<SubmitResult> {
   if (l.website) return 'sent' // bot: finge sucesso, não envia
-  if (!site.leadsEndpoint) return 'not-configured'
+  if (!site.leadsEndpoint) {
+    if(Object.keys(validate(l)).length)return 'error'
+    if(!db)return 'not-configured'
+    try {
+      const {error}=await db.from('lead_requests').insert({guardian_name:l.guardianName.trim(),email:l.email.trim(),phone:l.whatsapp.replace(/\D/g,''),student_name:l.studentName.trim(),school_grade:l.grade,subjects:l.subjects.join(', '),goal:l.goal,consent:l.consent})
+      return error?'error':'sent'
+    } catch {return 'error'}
+  }
   try {
     const { consent, website, ...data } = l
     void website
