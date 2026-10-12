@@ -5,7 +5,7 @@ import { adminNav } from '../AdminLayout'
 
 const about: Record<string, string> = {
   '/familias': 'Responsáveis, alunos e os vínculos entre eles.',
-  '/planos': 'Plano contratado por família e acompanhamento manual de pagamentos.',
+  '/planos': 'Pacote de aulas contratado pelo responsável e acompanhamento manual de pagamentos.',
   '/aulas': 'Agenda, professor, disciplina e link do Google Meet.',
   '/relatorios': 'Relatórios de evolução e materiais de apoio por aluno.',
   '/configuracoes': 'Conta administrativa e ajustes do painel.',
