@@ -2,9 +2,9 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { supabaseAdmin as db } from '../supabaseAdmin'
 import { PageHeader, btn, btnGhost } from '../ui'
 
-type Family={id:string;name:string;notes:string}
-type Guardian={id:string;family_id:string;full_name:string;email:string;phone:string;active:boolean}
-type Student={id:string;family_id:string;full_name:string;school_grade:string;pedagogical_notes:string}
+type Family={id:string;name:string;notes:string;is_demo:boolean}
+type Guardian={id:string;family_id:string;full_name:string;email:string;phone:string;active:boolean;is_demo:boolean}
+type Student={id:string;family_id:string;full_name:string;school_grade:string;pedagogical_notes:string;is_demo:boolean}
 type Kind='family'|'guardian'|'student'
 type FormData={name:string;notes:string;full_name:string;email:string;phone:string;school_grade:string;pedagogical_notes:string}
 const blank:FormData={name:'',notes:'',full_name:'',email:'',phone:'',school_grade:'',pedagogical_notes:''}
@@ -24,7 +24,7 @@ export default function Families(){
   if(!db){setError('Supabase não configurado.');setLoading(false);return}
   setLoading(true)
   try{
-   const [f,g,s]=await Promise.all([db.from('families').select('id,name,notes').order('name'),db.from('guardians').select('id,family_id,full_name,email,phone,active').order('full_name'),db.from('students').select('id,family_id,full_name,school_grade,pedagogical_notes').order('full_name')])
+   const [f,g,s]=await Promise.all([db.from('families').select('id,name,notes,is_demo').order('name'),db.from('guardians').select('id,family_id,full_name,email,phone,active,is_demo').order('full_name'),db.from('students').select('id,family_id,full_name,school_grade,pedagogical_notes,is_demo').order('full_name')])
    if(f.error||g.error||s.error){setError(errorText(f.error||g.error||s.error));return}
    setFamilies((f.data||[]) as Family[]);setGuardians((g.data||[]) as Guardian[]);setStudents((s.data||[]) as Student[])
   }catch{setError('Falha de conexão. Tente carregar novamente.')}finally{setLoading(false)}
@@ -65,9 +65,9 @@ export default function Families(){
   {notice&&<p role="status" className="rounded-xl border border-blue-500/40 p-4">{notice}</p>}
   <div className="glass-panel rounded-2xl p-5">
    <div className="flex flex-wrap justify-between gap-3"><h2 className="text-xl">Responsáveis cadastrados</h2><button className={btnGhost} disabled={loading} onClick={()=>void reload()}>Atualizar</button></div>
-   {loading?<p className="mt-4 text-mute">Carregando...</p>:families.length===0?<p className="mt-4 text-mute">Nenhum responsável cadastrado.</p>:<div className="mt-4 space-y-2">{families.map(f=><button key={f.id} onClick={()=>{setFamilyId(f.id);begin('family',f.id,f)}} className={'w-full rounded-xl border p-3 text-left '+(familyId===f.id?'border-blue-400':'border-white/20')}><b>{f.name}</b><span className="ml-3 text-sm text-mute">{guardians.filter(g=>g.family_id===f.id).length} responsáveis · {students.filter(s=>s.family_id===f.id).length} alunos</span></button>)}</div>}
+   {loading?<p className="mt-4 text-mute">Carregando...</p>:families.length===0?<p className="mt-4 text-mute">Nenhum responsável cadastrado.</p>:<div className="mt-4 space-y-2">{families.map(f=><button key={f.id} onClick={()=>{setFamilyId(f.id);begin('family',f.id,f)}} className={'w-full rounded-xl border p-3 text-left '+(familyId===f.id?'border-blue-400':'border-white/20')}><b>{f.name}</b>{f.is_demo&&<span className="ml-2 rounded-md border border-amber-400/50 px-2 py-1 text-xs text-amber-200">TESTE — FICTÍCIO</span>}<span className="ml-3 text-sm text-mute">{guardians.filter(g=>g.family_id===f.id).length} responsáveis · {students.filter(s=>s.family_id===f.id).length} alunos</span></button>)}</div>}
   </div>
-  {family&&<div className="glass-panel space-y-5 rounded-2xl p-5"><h2 className="text-xl">{family.name}</h2>
+  {family&&<div className="glass-panel space-y-5 rounded-2xl p-5"><h2 className="text-xl">{family.name}{family.is_demo&&<span className="ml-2 rounded-md border border-amber-400/50 px-2 py-1 text-xs text-amber-200">TESTE — FICTÍCIO</span>}</h2>
     <h3>Responsáveis</h3>{guardians.filter(g=>g.family_id===familyId).map(g=><div key={g.id} className="flex items-center justify-between border-b border-white/10 pb-2"><span>{g.full_name} <span className="text-mute">· {g.email} · {g.phone}</span></span><span className="flex flex-wrap gap-2"><button className={btnGhost} onClick={()=>begin('guardian',g.id,g)}>Editar</button><button disabled={saving} className={btnGhost} onClick={()=>void linkGuardian(g.id)}>Vincular acesso confirmado</button><button className={btnGhost} onClick={()=>void toggleGuardian(g.id,!g.active)}>{g.active?'Desativar acesso':'Reativar acesso'}</button></span></div>)}
     <h3>Alunos</h3>{students.filter(s=>s.family_id===familyId).map(s=><div key={s.id} className="flex items-center justify-between border-b border-white/10 pb-2"><span>{s.full_name} <span className="text-mute">· {s.school_grade}</span></span><button className={btnGhost} onClick={()=>begin('student',s.id,s)}>Editar</button></div>)}
     <div className="flex flex-wrap gap-3"><button className={btnGhost} onClick={()=>begin('guardian')}>+ Responsável</button><button className={btnGhost} onClick={()=>begin('student')}>+ Aluno</button><button className={btnGhost} onClick={()=>begin('family',family.id,family)}>Editar cadastro</button></div>
