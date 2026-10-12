@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react'
 
 /** Mesmos estilos de botão do site público (gradiente azul), copiados para não importar o App inteiro no chunk do painel. */
-export const btn = 'inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2F7BFF] to-[#0A0A9E] px-6 py-3 text-sm font-medium text-white transition-all hover:shadow-[0_0_20px_rgba(47,123,255,0.4)] active:scale-95 disabled:opacity-60'
-export const btnGhost = 'inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-white/10'
+export const btn = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2F7BFF] to-[#0A0A9E] px-6 py-3 text-sm font-medium text-white transition-[transform,box-shadow,opacity] duration-300 ease-out hover:shadow-[0_0_20px_rgba(47,123,255,0.3)] active:scale-[.98] motion-safe:hover:-translate-y-0.5 disabled:opacity-60'
+export const btnGhost = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-white transition-[transform,border-color,background-color] duration-300 ease-out hover:border-white/40 hover:bg-white/10 active:scale-[.98]'
 
 export function Brand({ compact }: { compact?: boolean }) {
   return (
     <span className="inline-flex items-center gap-3">
       <img src="/logo-aegis-mark.png" alt="" aria-hidden="true" width={135} height={200} className={compact ? 'h-8 w-auto' : 'h-10 w-auto'} />
-      <span className="font-serif text-xl leading-none tracking-tight">Aégis<span className="text-brass"> Educational</span></span>
+      <span className="font-serif text-base leading-none tracking-tight sm:text-xl">Aégis<span className="text-brass"> Educational</span></span>
     </span>
   )
 }
