@@ -145,3 +145,12 @@ a, button, input, select, textarea { touch-action: manipulation; }
   }
   [data-aegis-reveal] { opacity: 1 !important; transform: none !important; }
 }
+
+/* Conteúdo interno do portal de exemplo: transição sem esperar para pintar. */
+@media (prefers-reduced-motion: no-preference) {
+  .aegis-tab-panel { animation: aegis-tab-open 260ms cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes aegis-tab-open {
+    from { opacity: .55; transform: translate3d(0, 9px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+}
