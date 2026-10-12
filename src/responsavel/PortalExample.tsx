@@ -1,6 +1,6 @@
 import {useState} from 'react'
-import {ArrowRight,BookOpen,CalendarDays,CheckCircle2,Clock3,FileText,GraduationCap,LockKeyhole,ShieldCheck} from 'lucide-react'
-import {Brand,btn,btnGhost} from '../admin/ui'
+import {BookOpen,CalendarDays,CheckCircle2,Clock3,FileText,GraduationCap,LockKeyhole,ShieldCheck} from 'lucide-react'
+import {Brand,btnGhost} from '../admin/ui'
 
 type Lesson={id:number;subject:string;date:string;teacher:string;status:'completed'|'scheduled'|'cancelled';description:string}
 const lessons:Lesson[]=[
