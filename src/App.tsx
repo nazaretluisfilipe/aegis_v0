@@ -56,8 +56,8 @@ function Hero() {
     <section className="relative overflow-hidden py-20 sm:py-32 lg:py-40">
       <HeroGradient />
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.7) 38%, rgba(0,0,0,.15) 75%, rgba(0,0,0,0) 100%), linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,0) 25%), linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 12%)' }} />
-      <Wrap className="relative z-10 grid gap-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:gap-20">
-        <div>
+      <Wrap className="relative z-10 grid min-w-0 gap-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:gap-20">
+        <div className="min-w-0">
           <Eyebrow>Aegis Educational · Acompanhamento de Elite</Eyebrow>
           <h1 className="aegis-intro mt-6 max-w-3xl text-[2.1rem] leading-[1.1] min-[370px]:text-5xl sm:text-6xl lg:text-7xl font-bold">
             {content.heroTitle}
