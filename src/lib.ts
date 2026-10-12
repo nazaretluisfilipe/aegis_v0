@@ -35,27 +35,27 @@ export function validate(l: Lead) {
 
 export type SubmitResult = 'sent' | 'not-configured' | 'error'
 
-/** Envia o lead ao endpoint (Google Apps Script). NUNCA retorna 'sent' sem confirmação JSON {ok:true} do servidor. */
+/** Registra o interesse diretamente no CRM Supabase.
+ * O endpoint legado externo NÃO deve ser usado: um envio bem-sucedido precisa
+ * aparecer na tela administrativa de Interessados, com a mesma base de dados.
+ * A confirmação é retornada somente após o INSERT terminar sem erro.
+ */
 export async function submitLead(l: Lead): Promise<SubmitResult> {
-  if (l.website) return 'sent' // bot: finge sucesso, não envia
-  if (!site.leadsEndpoint) {
-    if(Object.keys(validate(l)).length)return 'error'
-    if(!db)return 'not-configured'
-    try {
-      const {error}=await db.from('lead_requests').insert({guardian_name:l.guardianName.trim(),email:l.email.trim(),phone:l.whatsapp.replace(/\D/g,''),student_name:l.studentName.trim(),school_grade:l.grade,subjects:l.subjects.join(', '),goal:l.goal,consent:l.consent})
-      return error?'error':'sent'
-    } catch {return 'error'}
-  }
+  if (l.website) return 'sent' // honeypot: finge sucesso sem gravar spam
+  if (Object.keys(validate(l)).length) return 'error'
+  if (!db) return 'not-configured'
   try {
-    const { consent, website, ...data } = l
-    void website
-    const res = await fetch(site.leadsEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS no Apps Script
-      body: JSON.stringify({ ...data, consent, source: location.href, submittedAt: new Date().toISOString() }),
+    const {error} = await db.from('lead_requests').insert({
+      guardian_name: l.guardianName.trim(),
+      email: l.email.trim().toLowerCase(),
+      phone: l.whatsapp.replace(/\D/g, ''),
+      student_name: l.studentName.trim(),
+      school_grade: l.grade.trim(),
+      subjects: l.subjects.join(', '),
+      goal: l.goal.trim(),
+      consent: l.consent
     })
-    const json = await res.json()
-    return json && json.ok === true ? 'sent' : 'error'
+    return error ? 'error' : 'sent'
   } catch {
     return 'error'
   }

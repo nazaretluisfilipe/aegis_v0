@@ -43,4 +43,18 @@ await check('Ações administrativas registradas',async()=>assert.ok(await value
 await db.exec('reset role;set role anon')
 await check('Visitante só vê versão publicada',async()=>assert.equal(await value('select count(*)::int from site_versions'),1))
 await check('Visitante não lê relatórios',()=>assert.rejects(db.exec('select * from educational_reports'),e=>e.code==='42501'))
+await check('Formulário público aceita lead via perfil anônimo sem login',async()=>{
+ await db.exec("insert into lead_requests(guardian_name,email,phone,student_name,school_grade,subjects,goal,consent) values('[TESTE — FICTÍCIO] Responsável','anon-jornada@example.invalid','11999999999','[TESTE — FICTÍCIO] Aluno','8º ano','Matemática','Revisão',true)")
+})
+await check('Visitante anônimo não consulta os interessados',async()=>{
+ await assert.rejects(db.exec('select * from lead_requests'),e=>e.code==='42501')
+})
+await db.exec(`reset role;set role authenticated;set request.jwt.claim.sub='${uid(1)}'`)
+await check('Painel identifica lead e o converte em família com aluno',async()=>{
+ const id=await value("select id from lead_requests where email='anon-jornada@example.invalid'")
+ const family=await value(`select aegis_convert_lead('${id}')`)
+ assert.equal(await value(`select count(*)::int from guardians where family_id='${family}'`),1)
+ assert.equal(await value(`select count(*)::int from students where family_id='${family}'`),1)
+ assert.equal(await value(`select count(*)::int from lead_requests where id='${id}' and status='converted'`),1)
+})
 await db.close();console.log(`${count} testes de operação aprovados em PostgreSQL embarcado.`)
