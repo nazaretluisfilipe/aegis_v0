@@ -43,7 +43,9 @@ jobs:
       - name: Navegar pelo site oficial sem criar clientes
         run: |
           node scripts/public-browser-smoke.mjs
-          node scripts/responsive-browser-smoke.mjs
+          if [ "$GITHUB_REF" = 'refs/heads/main' ]; then
+            node scripts/responsive-browser-smoke.mjs
+          fi
         env:
           AEGIS_BASE_URL: https://www.aegisedu.com.br
       - name: Guardar capturas públicas para revisão visual
