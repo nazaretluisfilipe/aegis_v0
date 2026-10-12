@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --color-black: #000000;
+  --color-midnight: #05050a;
+  --color-deep-blue: #00002a;
+  --color-electric-blue: #3b9ce2;
+  --color-text-main: #ffffff;
+  --color-text-muted: #94a3b8;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-black);
+  color: var(--color-text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  @apply font-sans tracking-tight font-bold;
+  color: #FFFFFF;
+}
+
+/* Glassmorphism minimalista: apenas onde for necessário para separar camadas */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.text-gradient-premium {
+  background: linear-gradient(to right, #FFFFFF, #3b9ce2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-electric-blue);
+  outline-offset: 2px;
+}
+
+/* Reset de seções para garantir fundo sólido e controle total */
+section {
+  background: var(--color-black);
+  color: white;
+}
+
+.text-muted {
+  @apply text-slate-400;
+}
+
+/* Painel de vidro do hero: deixa o gradiente aparecer por trás */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #FFFFFF, #3b9ce2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+::selection { background: rgba(47, 123, 255, 0.4); }
