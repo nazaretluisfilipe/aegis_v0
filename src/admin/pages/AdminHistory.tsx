@@ -5,7 +5,7 @@ import { supabaseAdmin as db } from '../supabaseAdmin'
 type Event = { id: number; entity: string; entity_id: string | null; action: string; actor: string | null; created_at: string }
 type Adjustment = { id: string; package_id: string; previous_quantity: number; new_quantity: number; reason: string; created_at: string }
 const entityNames: Record<string,string> = {
- teachers: 'Professores', teacher_availability: 'Disponibilidade',
+ teachers: 'Professores', teacher_availability: 'Disponibilidade', lead_requests: 'Interessados',
  lessons: 'Aulas', lesson_packages: 'Pacotes', lesson_materials: 'Materiais',
  educational_reports: 'Relatórios', site_versions: 'Conteúdo do site'
 }
