@@ -1,3 +1,4 @@
+import BrandLogo from '../components/BrandLogo'
 import type { ReactNode } from 'react'
 
 /** Mesmos estilos de botão do site público (gradiente azul), copiados para não importar o App inteiro no chunk do painel. */
@@ -5,11 +6,7 @@ export const btn = 'inline-flex min-h-11 items-center justify-center gap-2 round
 export const btnGhost = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-white transition-[transform,border-color,background-color] duration-300 ease-out hover:border-white/40 hover:bg-white/10 active:scale-[.98]'
 
 export function Brand({ compact }: { compact?: boolean }) {
-  return (
-    <span className="inline-flex items-center gap-3">
-      <span className={'font-serif leading-none tracking-tight text-white '+(compact?'text-lg sm:text-xl':'text-xl sm:text-2xl')}>Aégis<span className="text-brass"> Educational</span></span>
-    </span>
-  )
+  return <BrandLogo compact={compact}/>
 }
 
 export function PageHeader({ title, children }: { title: string; children?: ReactNode }) {

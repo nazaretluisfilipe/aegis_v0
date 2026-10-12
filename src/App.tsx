@@ -1,3 +1,4 @@
+import BrandLogo from './components/BrandLogo'
 import {SiteContentProvider,useSiteContent} from './siteContent'
 import { useEffect, useState, type ReactNode } from 'react'
 import { ArrowRight, Check, Loader2, Menu, MessageCircle, X, LogIn, Eye } from 'lucide-react'
@@ -13,11 +14,8 @@ const Eyebrow = ({ children, light }: { children: ReactNode; light?: boolean }) 
 
 
 
-/** Marca provisória, só tipografia. Para trocar pela logo definitiva: ponha /public/logo.svg e defina LOGO_SRC. */
-const LOGO_SRC = ''
-function Brand({ className = 'text-2xl', compact=false }: { className?: string; compact?: boolean }) {
-  if (LOGO_SRC) return <img src={LOGO_SRC} alt={site.name} className="h-8 w-auto" />
-  return <span className={`font-serif tracking-tight whitespace-nowrap ${className}`}>Aégis<span className={compact ? 'hidden text-brass sm:inline' : 'text-brass'}> Educational</span></span>
+function Brand({ className = '', compact=false }: { className?: string; compact?: boolean }) {
+  return <BrandLogo compact={compact} className={className}/>
 }
 
 export function Cta({ message, children, className = btn, icon = true }: { message: string; children: ReactNode; className?: string; icon?: boolean }) {
