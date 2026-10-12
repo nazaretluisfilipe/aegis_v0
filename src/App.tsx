@@ -1,6 +1,6 @@
 import {SiteContentProvider,useSiteContent} from './siteContent'
 import { useState, type ReactNode } from 'react'
-import { ArrowRight, Check, Loader2, Menu, MessageCircle, X } from 'lucide-react'
+import { ArrowRight, Check, Loader2, Menu, MessageCircle, X, LogIn, Eye } from 'lucide-react'
 import { site, messages, subjects, plans, singleLesson, brl } from './config'
 import { wa, emptyLead, validate, submitLead, leadToWhatsApp, type Lead, type SubmitResult } from './lib'
 import HeroGradient from './components/HeroGradient'
@@ -35,9 +35,10 @@ function Header() {
         <a href="/" aria-label="Aegis Educational, início"><Brand /></a>
         <nav aria-label="Principal" className="hidden items-center gap-4 xl:flex">
           {nav.map(([n, h]) => <a key={h} href={h} className="text-sm text-white/70 hover:text-[#3b9ce2] transition-colors">{n}</a>)}
+<a href="/responsavel" className={btnGhost+' !px-4 !py-2.5'}><LogIn size={15} aria-hidden />Acessar portal</a>
           <a href="#diagnostico" className={btn + ' !py-2.5'}>Solicitar diagnóstico</a>
         </nav>
-        <button className="rounded-full p-2 xl:hidden text-white" aria-expanded={open} aria-controls="menu-mobile" aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
+        <div className="flex items-center gap-2 xl:hidden"><a href="/responsavel" className="inline-flex items-center gap-2 rounded-full border border-[#3b9ce2]/50 bg-[#2F7BFF]/10 px-3 py-2 text-xs font-semibold text-white sm:px-4 sm:text-sm"><LogIn size={16} aria-hidden/>Área do responsável</a><button className="rounded-full p-2 text-white" aria-expanded={open} aria-controls="menu-mobile" aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button></div>
       </Wrap>
       {open && <nav id="menu-mobile" aria-label="Menu móvel" className="border-t border-white/10 bg-black xl:hidden"><Wrap className="flex flex-col py-2">
         {nav.map(([n, h]) => <a key={h} href={h} onClick={() => setOpen(false)} className="border-b border-white/10 py-4 font-serif text-lg text-white">{n}</a>)}
@@ -65,8 +66,10 @@ function Hero() {
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <a href="#diagnostico" className={btn}>Solicitar diagnóstico gratuito <ArrowRight size={16} aria-hidden /></a>
             <a href="#planos" className={btnGhost}>Ver planos e valores</a>
+            <a href="/responsavel" className={btnGhost}><LogIn size={17} aria-hidden />Sou responsável</a>
           </div>
           <p className="mt-6 text-sm text-white/40">Resposta personalizada via WhatsApp.</p>
+          <a href="/responsavel/exemplo" className="mt-5 inline-flex items-center gap-2 text-sm text-[#8bbaff] underline underline-offset-4 hover:text-white"><Eye size={16} aria-hidden/>Conhecer a área do responsável — demonstração fictícia</a>
         </div>
         <aside className="glass-card rounded-2xl p-8 shadow-2xl sm:p-10">
           <p className="text-xs uppercase tracking-widest text-[#3b9ce2] font-bold">O Método Aégis</p>
@@ -281,7 +284,8 @@ function Footer() {
 function StickyBar() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-white/10 bg-black/90 p-3 backdrop-blur xl:hidden" style={{ paddingBottom: 'max(.75rem, env(safe-area-inset-bottom))' }}>
-      <a href="#diagnostico" className={btn + ' flex-1'}>Solicitar diagnóstico</a>
+      <a href="/responsavel" className={btnGhost+' !px-3 flex-1 !py-2 text-xs sm:text-sm'}><LogIn size={16} aria-hidden/>Área do responsável</a>
+      <a href="#diagnostico" className={btn + ' flex-1 !px-3 text-xs sm:text-sm'}>Solicitar diagnóstico</a>
       <Cta message={messages.general} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 text-white" icon={false}><MessageCircle size={20} aria-label="Conversar pelo WhatsApp" /></Cta>
     </div>
   )
@@ -295,7 +299,7 @@ function Privacy() {
       <div className="mt-8 space-y-5 leading-relaxed text-graphite">
         <p><b>Quais dados coletamos.</b> No formulário de diagnóstico: nome, WhatsApp e e-mail do responsável; nome, série, idade (opcional), escola (opcional), disciplina, objetivo, dificuldades, disponibilidade e observações sobre o aluno.</p>
         <p><b>Para que usamos.</b> Exclusivamente para entender o caso do aluno, entrar em contato com o responsável e propor o acompanhamento. Pedimos só o necessário e o consentimento do responsável antes do envio.</p>
-        <p><b>Onde ficam.</b> Os dados enviados são registrados em uma planilha de acesso restrito da equipe. Ao continuar pelo WhatsApp, a conversa passa a seguir as regras daquele serviço.</p>
+        <p><b>Onde ficam.</b> Os dados são armazenados em sistemas de acesso restrito da equipe, incluindo o Supabase, para atendimento e gestão do acompanhamento educacional. Ao continuar pelo WhatsApp, a conversa passa a seguir as regras daquele serviço.</p>
         <p><b>Seus direitos (LGPD).</b> O responsável pode pedir acesso, correção ou exclusão dos dados dele e do aluno, ou retirar o consentimento, a qualquer momento{site.email ? <>, pelo e-mail <a className="underline" href={`mailto:${site.email}`}>{site.email}</a></> : ' pelos canais de contato da Aegis Educational'}.</p>
         <p className="rounded-sm border border-line bg-white/[0.03] p-4 text-sm text-mute">Revisão jurídica pendente: antes da publicação, este texto deve ser revisado por advogado e completado com a razão social, o CNPJ e o encarregado de dados da empresa.</p>
       </div>
