@@ -1,0 +1,1 @@
+Referências históricas, fora da aplicação ativa. Não executar o SQL completo nem os testes antigos. O SQL completo só teve a duração corrigida; demais regras ainda precisam de revisão. Áreas antigas de aluno/login em src/pages e src/contexts também não estão ligadas ao ponto de entrada atual.

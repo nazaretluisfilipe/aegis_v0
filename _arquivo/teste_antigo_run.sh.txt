@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Roda migration + testes de RLS num Postgres LOCAL descartável (não toca no Supabase real).
+# Uso: sudo -u postgres bash supabase/tests/run.sh
+set -e
+D="$(cd "$(dirname "$0")/.." && pwd)"
+psql -q -d postgres -c 'drop database if exists aegis_test' -c 'create database aegis_test'
+psql -q -d postgres -c 'drop role if exists anon' -c 'drop role if exists authenticated' -c 'drop role if exists service_role' 2>/dev/null || true
+psql -q -v ON_ERROR_STOP=1 -d aegis_test -f "$D/tests/00_stubs.sql" -f "$D/migrations/0001_schema.sql"
+psql -q -t -d aegis_test -f "$D/tests/01_rls.sql"

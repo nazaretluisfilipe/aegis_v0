@@ -1,0 +1,76 @@
+\set ON_ERROR_STOP off
+-- Fixtures (como service role/superuser)
+insert into auth.users (id, raw_app_meta_data) values
+ ('00000000-0000-0000-0000-0000000000a1','{"role":"admin"}'),
+ ('00000000-0000-0000-0000-0000000000b1','{"role":"parent"}'),
+ ('00000000-0000-0000-0000-0000000000b2','{"role":"parent"}'),
+ ('00000000-0000-0000-0000-0000000000c1','{"role":"student"}');
+insert into students (id, profile_id, full_name) values
+ ('10000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-0000000000c1','Aluno A'),
+ ('10000000-0000-0000-0000-000000000002',null,'Aluno B');
+insert into student_private_notes values ('10000000-0000-0000-0000-000000000001','NOTA INTERNA A');
+insert into parent_students values ('00000000-0000-0000-0000-0000000000b1','10000000-0000-0000-0000-000000000001'),
+                                   ('00000000-0000-0000-0000-0000000000b2','10000000-0000-0000-0000-000000000002');
+insert into lessons (id, student_id, starts_at) values
+ ('20000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001', now()),
+ ('20000000-0000-0000-0000-000000000002','10000000-0000-0000-0000-000000000002', now());
+insert into lesson_private_notes values ('20000000-0000-0000-0000-000000000001','int A');
+insert into lesson_notes (lesson_id, body, published) values
+ ('20000000-0000-0000-0000-000000000001','feedback publicado A', true),
+ ('20000000-0000-0000-0000-000000000001','rascunho A', false);
+insert into materials (student_id,title,storage_path) values
+ ('10000000-0000-0000-0000-000000000001','Mat A','a/file.pdf'),('10000000-0000-0000-0000-000000000002','Mat B','b/file.pdf');
+insert into storage.objects (bucket_id,name) values ('materials','a/file.pdf'),('materials','b/file.pdf');
+insert into reports (student_id, published, performance) values
+ ('10000000-0000-0000-0000-000000000001', true,'rel pub A'),('10000000-0000-0000-0000-000000000001', false,'rel rascunho A'),
+ ('10000000-0000-0000-0000-000000000002', true,'rel pub B');
+\echo '=== Perfis criados pelo trigger (papel vem do app_metadata)'
+select right(id::text,2) id, role from profiles order by id;
+
+\echo '=== PAI A (esperado: só Aluno A, 1 aula, 1 feedback publicado, Mat A, 1 relatório publicado)'
+set role authenticated; set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b1';
+select 'students', count(*), string_agg(full_name,',') from students;
+select 'lessons', count(*) from lessons;
+select 'notes', count(*), string_agg(body,',') from lesson_notes;
+select 'materials', count(*), string_agg(title,',') from materials;
+select 'reports', count(*), string_agg(performance,',') from reports;
+select 'storage', count(*), string_agg(name,',') from storage.objects;
+\echo '--- ataques do PAI A'
+select 'IDOR aluno B direto', count(*) from students where id='10000000-0000-0000-0000-000000000002';
+select 'IDOR storage b/file.pdf', count(*) from storage.objects where name='b/file.pdf';
+select 'pai lê nota privada aula', count(*) from lesson_private_notes;  -- esperado 0
+select 'pai lê nota privada aluno', count(*) from student_private_notes; -- esperado 0
+update profiles set role='admin' where id=auth.uid();   -- deve dar erro
+update profiles set full_name='Novo Nome' where id=auth.uid();  -- permitido
+select 'admin_set_profile', public.admin_set_profile(auth.uid(),'admin',true);  -- forbidden
+insert into students (full_name) values ('hack');       -- RLS
+select 'leads visíveis', count(*) from leads;
+select 'is_admin', public.is_admin();
+reset role;
+
+\echo '=== ALUNO C (esperado: só Aluno A)'
+set role authenticated; set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c1';
+select 'students', count(*), string_agg(full_name,',') from students;
+select 'materials', count(*) from materials;
+reset role;
+
+\echo '=== VISITANTE ANON (esperado: leads só inserção; sem dados privados)'
+set role anon; set request.jwt.claim.sub = '';
+select 'students', count(*) from students;
+insert into leads (guardian_name,whatsapp,email,student_name,consent) values ('Maria Teste','41999999999','m@x.com','Joao',true);
+insert into leads (guardian_name,whatsapp,email,student_name,consent) values ('Maria Teste','41999999999','m@x.com','Joao',false);  -- check
+insert into leads (guardian_name,whatsapp,email,student_name,consent,status) values ('Maria Teste','41999999999','m@x.com','Joao',true,'won'); -- RLS
+select 'ler leads' , count(*) from leads;
+select 'plans' , count(*) from plans;
+update plans set price=1;
+reset role;
+
+\echo '=== ADMIN'
+set role authenticated; set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+select 'students', count(*) from students;
+select 'leads', count(*) from leads;
+select 'rascunhos', count(*) from reports where not published;
+select 'admin nota aluno', body from student_private_notes;
+select 'admin nota aula', body from lesson_private_notes;
+select 'storage', count(*) from storage.objects;
+reset role;
