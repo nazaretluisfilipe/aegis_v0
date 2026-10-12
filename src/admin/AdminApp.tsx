@@ -13,6 +13,7 @@ import Reports from './pages/Reports'
 import Teachers from './pages/Teachers'
 import TeacherAvailability from './pages/TeacherAvailability'
 import AdminHistory from './pages/AdminHistory'
+import DemoLab from './pages/DemoLab'
 import SiteEditor from './pages/SiteEditor'
 import Leads from './pages/Leads'
 import SettingsPage from './pages/SettingsPage'
@@ -95,6 +96,7 @@ function Guard() {
             <Route path="professores" element={<Teachers />} />
             <Route path="disponibilidade" element={<TeacherAvailability />} />
             <Route path="historico" element={<AdminHistory />} />
+            <Route path="laboratorio" element={<DemoLab />} />
             <Route path="aulas" element={<Lessons />} />
             <Route path="relatorios" element={<Reports />} />
             <Route path="configuracoes" element={<SettingsPage />} />
