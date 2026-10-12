@@ -5,12 +5,16 @@ import './index.css'
 
 // O painel administrativo (/admin) é carregado sob demanda: o site público não baixa nem executa nada dele.
 const AdminApp = lazy(() => import('./admin/AdminApp'))
+const ResponsiblePortal = lazy(() => import('./responsavel/ResponsiblePortal'))
+const PasswordRecovery = lazy(() => import('./responsavel/PasswordRecovery'))
 const isAdminRoute = /^\/admin(\/|$)/.test(location.pathname)
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {isAdminRoute
       ? <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-black text-white/60" role="status">Carregando…</div>}><AdminApp /></Suspense>
-      : <App />}
+      : isResponsibleRoute
+        ? <Suspense fallback={<div role="status">Carregando...</div>}>{location.pathname.startsWith('/responsavel/recuperar') ? <PasswordRecovery /> : <ResponsiblePortal />}</Suspense>
+        : <App />}
   </React.StrictMode>
 )
