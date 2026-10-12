@@ -19,6 +19,6 @@ jobs:
       - name: Verificar TypeScript e build
         run: npm run build
       - name: Testar permissoes da etapa anterior
-        run: npm run test:admin
+        run: node supabase/tests/admin.test.mjs
       - name: Testar cadastros e RLS da Fase 1
         run: node supabase/tests/families.test.mjs
