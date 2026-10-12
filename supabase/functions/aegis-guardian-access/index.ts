@@ -87,6 +87,11 @@ Deno.serve(async (req: Request) => {
   if(body.action==="invite"){
     if(guardian.is_demo||f.is_demo)return response({error:"Convites reais são proibidos para dados TESTE — FICTÍCIO"},400,origin)
     if(guardian.auth_user_id)return response({ok:true,already_linked:true,message:"Este responsável já possui acesso vinculado."},200,origin)
+    const since=new Date(Date.now()-15*60*1000).toISOString()
+    const {data:recent,error:recentErr}=await admin.from("guardian_invitation_log")
+      .select("id").eq("guardian_id",guardian.id).gte("sent_at",since).limit(1)
+    if(recentErr)return response({error:"Não foi possível conferir a frequência de convites"},503,origin)
+    if(recent?.length)return response({error:"Um convite foi enviado recentemente. Aguarde 15 minutos antes de reenviar."},429,origin)
     // O endereço de retorno nunca é escolhido livremente pelo navegador.
     // Configure a URL em Auth > URL Configuration para aceitar este domínio.
     const redirectTo=origin+"/responsavel/ativar"
@@ -98,7 +103,10 @@ Deno.serve(async (req: Request) => {
         return response({error:"O e-mail já existe no Auth. Solicite recuperação de senha e o vínculo ocorrerá após a entrada."},409,origin)
       return response({error:"Não foi possível enviar o convite. Confira o provedor de e-mail e as URLs de redirecionamento do Supabase."},502,origin)
     }
-    return response({ok:true,message:"Convite enviado para o e-mail cadastrado. O vínculo será feito quando a conta confirmada entrar."},200,origin)
+    const {error:logErr}=await admin.from("guardian_invitation_log")
+      .insert({guardian_id:guardian.id,requested_by:user.id})
+    return response({ok:true,message:logErr?
+      "Convite enviado, mas o registro do envio não foi gravado.":"Convite enviado para o e-mail cadastrado. O vínculo será feito quando a conta confirmada entrar."},200,origin)
   }
   // Demonstração: credenciais criadas SEM enviar e-mail, somente ao administrador.
   if (!guardian.is_demo || !f.is_demo)return response({error:"Esta operação só é permitida para dados TESTE — FICTÍCIO"},403,origin)
@@ -115,9 +123,9 @@ Deno.serve(async (req: Request) => {
     email:guardian.email,password,email_confirm:true,user_metadata:{full_name:guardian.full_name}
   })
   if(createErr||!created.user)return response({error:"Não foi possível criar o acesso fictício. Verifique se o e-mail já existe no Auth."},409,origin)
-  const {error:linkErr}=await admin.from("guardians").update({auth_user_id:created.user.id})
-    .eq("id",guardian.id).is("auth_user_id",null)
-  if(linkErr){
+  const {data:linked,error:linkErr}=await admin.from("guardians").update({auth_user_id:created.user.id})
+    .eq("id",guardian.id).is("auth_user_id",null).select("id").maybeSingle()
+  if(linkErr||!linked){
     await admin.auth.admin.deleteUser(created.user.id)
     return response({error:"Falha ao vincular a conta fictícia"},500,origin)
   }
