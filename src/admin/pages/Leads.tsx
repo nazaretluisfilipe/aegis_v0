@@ -6,7 +6,7 @@ import {PageHeader,btn,btnGhost} from '../ui'
 type Lead={
  id:string;guardian_name:string;email:string;phone:string;student_name:string;school_grade:string;
  subjects:string;goal:string;status:string;created_at:string;admin_notes:string;follow_up_at:string|null;
- converted_family_id:string|null
+ converted_family_id:string|null;is_demo:boolean
 }
 const stages:Record<string,string>={new:'Novo',contacted:'Contatado',qualified:'Qualificado',proposal:'Proposta enviada',converted:'Convertido',closed:'Encerrado'}
 const activeStages=['new','contacted','qualified','proposal','closed']
@@ -24,7 +24,7 @@ export default function Leads(){
  async function load(){
   if(!db)return
   setLoading(true)
-  const r=await db.from('lead_requests').select('id,guardian_name,email,phone,student_name,school_grade,subjects,goal,status,created_at,admin_notes,follow_up_at,converted_family_id').order('created_at',{ascending:false}).limit(200)
+  const r=await db.from('lead_requests').select('id,guardian_name,email,phone,student_name,school_grade,subjects,goal,status,created_at,admin_notes,follow_up_at,converted_family_id,is_demo').order('created_at',{ascending:false}).limit(200)
   setLoading(false)
   if(r.error){setError('Não foi possível carregar os interessados.');return}
   setRows((r.data||[]) as Lead[])
@@ -99,7 +99,7 @@ export default function Leads(){
   </section>
   {loading?<p role="status">Carregando contatos…</p>:visible.length===0?<p className="text-mute">Nenhum interessado encontrado.</p>:
    visible.map(l=><article className="glass-panel space-y-3 rounded-2xl p-5" key={l.id}>
-    <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-xl">{l.guardian_name}</h2>
+    <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-xl">{l.guardian_name}{l.is_demo&&<span className="ml-2 rounded-md border border-amber-400/50 px-2 py-1 text-xs text-amber-200">TESTE — FICTÍCIO</span>}</h2>
       <p className="text-sm text-mute">{l.email} · {l.phone}</p></div>
      <span className="rounded-full border border-white/20 px-3 py-1 text-xs">{stages[l.status]||l.status}</span>
     </div>
@@ -109,7 +109,7 @@ export default function Leads(){
     <p className="text-xs text-mute">Recebido em {showDate(l.created_at)}{l.follow_up_at?' · Retorno em '+showDate(l.follow_up_at):''}</p>
     <div className="flex flex-wrap items-center gap-2">
      <button className={btnGhost} onClick={()=>edit(l)}>Editar atendimento</button>
-     <a className={btnGhost} href={'https://wa.me/'+waPhone(l.phone)} target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>
+     {!l.is_demo&&<a className={btnGhost} href={'https://wa.me/'+waPhone(l.phone)} target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>}{l.is_demo&&<span className="text-xs text-amber-200">Contato fictício — sem WhatsApp</span>}
      {l.converted_family_id
       ? <Link className={btnGhost} to="/familias">Família cadastrada</Link>
       : <button className={btn} disabled={busy} onClick={()=>void convert(l)}>Converter em família</button>}
