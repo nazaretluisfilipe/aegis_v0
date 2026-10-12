@@ -1,6 +1,6 @@
 import {useState} from 'react'
-import {ArrowRight,BookOpen,CalendarDays,CheckCircle2,Clock3,FileText,GraduationCap,LockKeyhole,ShieldCheck} from 'lucide-react'
-import {Brand,btn,btnGhost} from '../admin/ui'
+import {BookOpen,CalendarDays,CheckCircle2,Clock3,FileText,GraduationCap,LockKeyhole,ShieldCheck} from 'lucide-react'
+import {Brand,btnGhost} from '../admin/ui'
 
 type Lesson={id:number;subject:string;date:string;teacher:string;status:'completed'|'scheduled'|'cancelled';description:string}
 const lessons:Lesson[]=[
@@ -16,31 +16,31 @@ export default function PortalExample(){
  const [tab,setTab]=useState<'inicio'|'agenda'|'relatorios'>('inicio')
  return <main className="min-h-screen bg-black pb-16 text-white">
   <header className="sticky top-0 z-30 border-b border-white/10 bg-black/90 backdrop-blur">
-   <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8">
-    <a href="/"><Brand compact /></a>
-    <div className="flex flex-wrap items-center gap-2">
-     <span className={pill+' order-last w-full justify-center sm:order-first sm:w-auto'}>DEMONSTRAÇÃO FICTÍCIA</span>
-     <a href="/responsavel" className={btnGhost+' !px-3 !py-2 sm:!px-4'}><LockKeyhole size={15} aria-hidden/><span className="sm:hidden">Portal real</span><span className="hidden sm:inline">Entrar de verdade</span></a>
-    </div>
+   <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-8">
+    <a href="/" aria-label="Aégis Educational, início"><Brand compact /></a>
+    <a href="/responsavel" className={btnGhost+' shrink-0 !px-3 !py-2 sm:!px-4'}><LockKeyhole size={15} aria-hidden/><span className="sm:hidden">Portal real</span><span className="hidden sm:inline">Entrar de verdade</span></a>
    </div>
   </header>
-  <div className="mx-auto max-w-6xl space-y-7 px-4 py-7 sm:px-8 sm:py-12">
-   <section className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-5" role="note">
-    <b className="text-amber-200">ESTA É UMA SIMULAÇÃO VISUAL — NÃO É UMA CONTA REAL</b>
-    <p className="mt-2 text-sm leading-relaxed text-white/70">Todas as pessoas, aulas, indicadores e relatórios nesta página são exemplos fictícios. Nada aqui vem de um aluno real ou do Supabase. Para testar o login e a integração real, use o Laboratório de testes no painel administrativo.</p>
+  <div className="mx-auto max-w-6xl space-y-5 px-4 py-5 sm:space-y-7 sm:px-8 sm:py-10">
+   <section className="rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 sm:px-5 sm:py-4" role="note">
+    <div className="flex flex-wrap items-center gap-2">
+     <span className={pill}>DEMONSTRAÇÃO FICTÍCIA</span>
+     <strong className="text-sm font-medium text-amber-100">Exemplo ilustrativo, não é uma conta real.</strong>
+    </div>
+    <p className="mt-2 text-xs leading-relaxed text-white/70 sm:text-sm">Estudantes, aulas e relatórios simulados, sem dados de clientes. Para testar o acesso autenticado, use o laboratório administrativo.</p>
    </section>
    <div className="flex flex-wrap items-start justify-between gap-4">
     <div><p className="text-xs font-semibold uppercase tracking-[.2em] text-[#3b9ce2]">Área do responsável · Exemplo</p>
-     <h1 className="mt-2 font-serif text-3xl sm:text-4xl">Bem-vinda ao acompanhamento, Júlia.</h1>
+     <h1 className="mt-2 font-serif text-[clamp(1.7rem,7.2vw,2.25rem)] leading-tight sm:text-4xl">Bem-vinda ao acompanhamento, Júlia.</h1>
      <p className="mt-2 text-white/65">Uma visão clara das aulas, do saldo e do progresso de quem você acompanha.</p>
     </div>
-    <a href="/responsavel" className={btn+' !px-4 !py-3'}>Acessar minha conta <ArrowRight size={16} aria-hidden/></a>
    </div>
-   <nav aria-label="Navegação da demonstração" className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[.03] p-2">
-    {([['inicio','Visão geral'],['agenda','Agenda e aulas'],['relatorios','Acompanhamento']] as const).map(([id,label])=>
-      <button key={id} type="button" onClick={()=>setTab(id)}
-       aria-pressed={tab===id} className={'aegis-tab min-h-11 flex-1 rounded-xl px-3 py-3 text-xs font-medium sm:flex-none sm:px-4 sm:text-sm '+(tab===id?'bg-[#2F7BFF]/20 text-white ring-1 ring-[#2F7BFF]/50':'text-white/60 hover:bg-white/10 hover:text-white')}>
-       {label}</button>)}
+   <nav aria-label="Navegação da demonstração" className="grid grid-cols-3 gap-1 rounded-2xl border border-white/10 bg-white/[.03] p-1.5 sm:flex sm:gap-2 sm:p-2">
+    {([['inicio','Visão geral','Resumo'],['agenda','Agenda e aulas','Aulas'],['relatorios','Acompanhamento','Relatórios']] as const).map(([id,label,short])=>
+      <button key={id} type="button" aria-label={label} onClick={()=>setTab(id)}
+       aria-pressed={tab===id} className={'aegis-tab min-h-11 min-w-0 rounded-xl px-1.5 py-2.5 text-xs font-medium sm:px-4 sm:py-3 sm:text-sm '+(tab===id?'bg-[#2F7BFF]/20 text-white ring-1 ring-[#2F7BFF]/50':'text-white/60 hover:bg-white/10 hover:text-white')}>
+       <span className="sm:hidden">{short}</span><span className="hidden sm:inline">{label}</span>
+      </button>)}
    </nav>
    {tab==='inicio'&&<div className="aegis-tab-panel space-y-4">
     <section className="grid gap-4 sm:grid-cols-3">

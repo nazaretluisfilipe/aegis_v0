@@ -17,7 +17,8 @@ async function verify(label,fn){try{await fn();checks++;console.log('PASS',label
 function withinViewport(page){return page.evaluate(()=>{
  const vw=document.documentElement.clientWidth
  const docWidth=document.documentElement.scrollWidth
- const root=document.querySelector('#root')
+ const brokenImages=[...document.querySelectorAll('img')].filter(im=>im.complete && im.naturalWidth===0).map(im=>im.getAttribute('src'))
+  const root=document.querySelector('#root')
  const rootWidth=root?.scrollWidth||0
  const buttons=[...document.querySelectorAll('header a[href="/responsavel"], nav button, main a[href="/responsavel"]')]
  const clipped=buttons.filter(node=>{
@@ -27,7 +28,7 @@ function withinViewport(page){return page.evaluate(()=>{
   if(r.width===0||r.height===0)return false
   return r.left < -2 || r.right > vw+2
  })
- return {vw,docWidth,rootWidth,clipped:clipped.map(x=>x.textContent?.trim())}
+ return {vw,docWidth,rootWidth,brokenImages,clipped:clipped.map(x=>x.textContent?.trim())}
 })}
 try{
  await mkdir('artifacts/responsive',{recursive:true})
@@ -45,6 +46,21 @@ try{
    assert.ok(layout.docWidth<=layout.vw+3,'Rolagem horizontal: '+JSON.stringify(layout))
    assert.deepEqual(layout.clipped,[],'Botões cortados')
    assert.ok(await page.locator('header a[href="/responsavel"]:visible').count(),'Link do responsável ausente')
+   assert.deepEqual(layout.brokenImages,[],'A homepage não deve conter imagens quebradas')
+   const title=await page.locator('main h1').first().evaluate(el=>{
+    const textNode=[...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE && n.textContent?.includes('acompanhamento'))
+    if(!textNode)return null
+    const start=textNode.textContent.indexOf('acompanhamento')
+    const range=document.createRange()
+    range.setStart(textNode,start)
+    range.setEnd(textNode,start+'acompanhamento'.length)
+    const rects=[...range.getClientRects()]
+    return {count:rects.length,right:Math.max(...rects.map(x=>x.right)),vw:document.documentElement.clientWidth}
+   })
+   if(title){
+    assert.equal(title.count,1,'A palavra acompanhamento está quebrada entre linhas: '+JSON.stringify(title))
+    assert.ok(title.right<=title.vw+2,'A palavra acompanhamento está cortada pelo viewport: '+JSON.stringify(title))
+   }
   })
   if(size.width===320||size.width===390||size.width===768||size.width===1440)
    await page.screenshot({path:'artifacts/responsive/home-'+size.width+'.png',fullPage:true,animations:'disabled'})
@@ -62,6 +78,7 @@ try{
    const layout=await withinViewport(page)
    assert.ok(layout.docWidth<=layout.vw+3,'Portal excede viewport: '+JSON.stringify(layout))
    assert.deepEqual(layout.clipped,[])
+   assert.deepEqual(layout.brokenImages,[],'O portal demonstrativo não deve ter logotipo quebrado')
    await page.getByRole('button',{name:'Agenda e aulas'}).click()
    await page.getByText('Cancelada',{exact:true}).first().waitFor()
    await page.getByRole('button',{name:'Acompanhamento'}).click()
@@ -75,6 +92,14 @@ try{
    await page.getByRole('button',{name:'Entrar',exact:true}).waitFor()
    const layout=await withinViewport(page)
    assert.ok(layout.docWidth<=layout.vw+3,'Login excede viewport: '+JSON.stringify(layout))
+   assert.deepEqual(layout.brokenImages,[],'Login do responsável deve mostrar marca sem imagem quebrada')
+  })
+  if(size.width===320||size.width===390)await verify('login administrativo sem imagem quebrada '+size.label,async()=>{
+   await page.goto(base+'/admin',{waitUntil:'domcontentloaded'})
+   await page.getByRole('heading',{name:'Entrar no painel'}).waitFor()
+   const layout=await withinViewport(page)
+   assert.deepEqual(layout.brokenImages,[])
+   assert.ok(layout.docWidth<=layout.vw+3)
   })
   assert.deepEqual(jsErrors,[],size.label+' apresentou erro JavaScript')
   await ctx.close()
