@@ -12,7 +12,7 @@ const field='w-full rounded-xl border border-white/20 bg-[#080d19] p-3 text-whit
 function errorText(e:{code?:string}|null){if(e?.code==='23505')return 'Registro duplicado: confira e-mail ou nome e série do aluno.';if(e?.code==='42501')return 'Permissão insuficiente.';if(e?.code==='42P01'||e?.code==='PGRST202'||e?.code==='42883')return 'Banco não preparado: falta instalar a migração 0002.';return 'Não foi possível salvar ou carregar os dados. Confira a conexão e tente novamente.'}
 const valid=(data:FormData,kind:Kind)=>{
   if(kind==='family'&&data.name.trim().length<3)return 'Informe o nome da família.'
-  if(kind!=='student'&&(data.full_name.trim().length<3||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)||!/^\d{10,13}$/.test(data.phone.replace(/\D/g,''))))return 'Informe nome, e-mail válido e telefone com DDD.'
+  if(kind==='guardian'&&(data.full_name.trim().length<3||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)||!/^\d{10,13}$/.test(data.phone.replace(/\D/g,''))))return 'Informe nome, e-mail válido e telefone com DDD.'
   if(kind==='student'&&(data.full_name.trim().length<2||!data.school_grade.trim()))return 'Informe nome e série escolar.'
   return ''
 }
@@ -33,7 +33,7 @@ export default function Families(){
  function begin(k:Kind,id='',record?:Partial<FormData>){setKind(k);setEditId(id);setForm({...blank,...record});setError('');setNotice('')}
  async function save(e:FormEvent){
   e.preventDefault();if(!db||saving)return
-  const problem=valid(form,kind);if(problem){setError(problem);return}
+  const problem=kind==='family'&&!editId ? (valid(form,'family')||valid(form,'guardian')) : valid(form,kind);if(problem){setError(problem);return}
   if(kind!=='family'&&!familyId){setError('Selecione uma família.');return}
   setSaving(true);setError('');setNotice('')
   try{
@@ -46,7 +46,7 @@ export default function Families(){
     result=editId?await db.from(table).update(data).eq('id',editId):await db.from(table).insert({...data,family_id:familyId})
    }
    if(result.error){setError(errorText(result.error));return}
-   await reload();begin('family');setNotice('Dados salvos. Atualize a página para confirmar a persistência.')
+   await reload();begin('family');setNotice('Operação confirmada pelo Supabase. Consulte a lista atualizada.')
   }catch{setError('Conexão interrompida. Confira os registros antes de tentar novamente.')}finally{setSaving(false)}
  }
  const family=families.find(f=>f.id===familyId)
