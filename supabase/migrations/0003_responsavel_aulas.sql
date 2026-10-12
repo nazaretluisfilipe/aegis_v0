@@ -7,7 +7,7 @@ create index guardians_auth_user_idx on public.guardians(auth_user_id);
 -- A Aegis envia convite pelo Supabase Auth; esta funcao apenas vincula
 -- uma conta existente, com e-mail confirmado, ao responsavel cadastrado.
 create function public.aegis_link_guardian(p_guardian_id uuid) returns boolean
-language plpgsql security definer set search_path='' as $
+language plpgsql security definer set search_path='' as $guardian_link$
 declare v_email text; v_user uuid;
 begin
  if not (select public.is_admin()) then raise exception 'Sem permissao' using errcode='42501'; end if;
@@ -18,7 +18,7 @@ begin
  update public.guardians set auth_user_id=v_user where id=p_guardian_id;
  return true;
 end;
-$;
+$guardian_link$;
 revoke all on function public.aegis_link_guardian(uuid) from public,anon,authenticated;
 grant execute on function public.aegis_link_guardian(uuid) to authenticated;
 
