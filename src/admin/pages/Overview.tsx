@@ -26,15 +26,15 @@ export default function Overview(){
    ] as const
    const results=await Promise.all([
     ...queries.map(async([label,table,key,value])=>{
-     const r=await db.from(table).select('id',{count:'exact',head:true}).eq(key,value)
+     const r=await db!.from(table).select('id',{count:'exact',head:true}).eq(key,value)
      return {label,count:r.count??0,error:r.error}
     }),
     (async()=>{
-     const r=await db.from('lessons').select('id',{count:'exact',head:true}).eq('status','scheduled').lt('starts_at',now)
+     const r=await db!.from('lessons').select('id',{count:'exact',head:true}).eq('status','scheduled').lt('starts_at',now)
      return {label:'Aulas aguardando fechamento',count:r.count??0,error:r.error}
     })(),
     (async()=>{
-     const r=await db.from('lead_requests').select('id',{count:'exact',head:true}).in('status',['new','contacted','qualified','proposal']).lt('follow_up_at',now)
+     const r=await db!.from('lead_requests').select('id',{count:'exact',head:true}).in('status',['new','contacted','qualified','proposal']).lt('follow_up_at',now)
      return {label:'Retornos comerciais atrasados',count:r.count??0,error:r.error}
     })()
    ])
