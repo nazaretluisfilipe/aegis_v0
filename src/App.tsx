@@ -17,7 +17,7 @@ const Eyebrow = ({ children, light }: { children: ReactNode; light?: boolean }) 
 const LOGO_SRC = ''
 function Brand({ className = 'text-2xl', compact=false }: { className?: string; compact?: boolean }) {
   if (LOGO_SRC) return <img src={LOGO_SRC} alt={site.name} className="h-8 w-auto" />
-  return <span className={`font-serif tracking-tight whitespace-nowrap ${className}`}>Aegis<span className={compact ? 'hidden text-brass sm:inline' : 'text-brass'}> Educational</span></span>
+  return <span className={`font-serif tracking-tight whitespace-nowrap ${className}`}>Aégis<span className={compact ? 'hidden text-brass sm:inline' : 'text-brass'}> Educational</span></span>
 }
 
 export function Cta({ message, children, className = btn, icon = true }: { message: string; children: ReactNode; className?: string; icon?: boolean }) {
@@ -53,22 +53,22 @@ function Header() {
 function Hero() {
   const content=useSiteContent()
   return (
-    <section className="relative overflow-hidden py-20 sm:py-32 lg:py-40">
+    <section className="relative overflow-hidden py-14 sm:py-20 lg:py-24 xl:py-28">
       <HeroGradient />
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.7) 38%, rgba(0,0,0,.15) 75%, rgba(0,0,0,0) 100%), linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,0) 25%), linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 12%)' }} />
-      <Wrap className="relative z-10 grid min-w-0 gap-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:gap-20">
+      <Wrap className="relative z-10 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)] lg:items-center lg:gap-10 xl:gap-14">
         <div className="min-w-0">
           <Eyebrow>Aegis Educational · Acompanhamento de Elite</Eyebrow>
-          <h1 className="aegis-intro mt-6 max-w-3xl text-[2.1rem] leading-[1.1] min-[370px]:text-5xl sm:text-6xl lg:text-7xl font-bold">
+          <h1 className="aegis-intro mt-5 max-w-3xl break-normal text-[clamp(1.625rem,8.3vw,2.25rem)] leading-[1.13] [overflow-wrap:normal] sm:text-[clamp(3rem,6vw,3.75rem)] lg:text-[clamp(2.9rem,4.4vw,3.5rem)] xl:text-[3.65rem] font-bold">
             {content.heroTitle}
           </h1>
-          <p className="aegis-intro aegis-intro-delayed mt-8 max-w-xl text-lg leading-relaxed text-white/70 sm:text-xl">
+          <p className="aegis-intro aegis-intro-delayed mt-6 max-w-xl text-base leading-relaxed text-white/70 sm:mt-8 sm:text-lg xl:text-xl">
             {content.heroDescription}
           </p>
-          <div className="mt-10 flex flex-col flex-wrap gap-3 sm:flex-row sm:gap-4">
+          <div className="mt-8 flex flex-col flex-wrap gap-3 sm:mt-10 sm:flex-row sm:gap-4">
             <a href="#diagnostico" className={btn}>Solicitar diagnóstico gratuito <ArrowRight size={16} aria-hidden /></a>
             <a href="#planos" className={btnGhost}>Ver planos e valores</a>
-            <a href="/responsavel" className={btnGhost}><LogIn size={17} aria-hidden />Sou responsável</a>
+            <a href="/responsavel" className={btnGhost+' hidden sm:inline-flex'}><LogIn size={17} aria-hidden />Sou responsável</a>
           </div>
           <p className="mt-6 text-sm text-white/40">Resposta personalizada via WhatsApp.</p>
           <a href="/responsavel/exemplo" className="mt-5 inline-flex items-center gap-2 text-sm text-[#8bbaff] underline underline-offset-4 hover:text-white"><Eye size={16} aria-hidden/>Conhecer a área do responsável — demonstração fictícia</a>
@@ -271,7 +271,7 @@ function Footer() {
   const content=useSiteContent()
   const email=content.email||site.email
   return (
-    <footer className="bg-ink pb-28 pt-14 text-paper md:pb-14"><Wrap className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+    <footer className="bg-ink pb-14 pt-14 text-paper max-sm:pb-24"><Wrap className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
       <div><Brand className="text-3xl" /><p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">Acompanhamento educacional individual em Matemática, Física e Química.</p></div>
       <ul className="space-y-2 text-sm text-white/80">{nav.map(([n, h]) => <li key={h}><a href={h} className="hover:text-white">{n}</a></li>)}<li><a href="#diagnostico" className="hover:text-white">Solicitar diagnóstico</a></li></ul>
       <ul className="space-y-2 text-sm text-white/80">
@@ -285,10 +285,9 @@ function Footer() {
 
 function StickyBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-white/10 bg-black/90 p-3 backdrop-blur xl:hidden" style={{ paddingBottom: 'max(.75rem, env(safe-area-inset-bottom))' }}>
-      <a href="/responsavel" className={btnGhost+' !px-3 flex-1 !py-2 text-xs sm:text-sm'}><LogIn size={16} aria-hidden/>Área do responsável</a>
-      <a href="#diagnostico" className={btn + ' flex-1 !px-3 text-xs sm:text-sm'}>Solicitar diagnóstico</a>
-      <Cta message={messages.general} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 text-white" icon={false}><MessageCircle size={20} aria-label="Conversar pelo WhatsApp" /></Cta>
+    <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-white/10 bg-black/90 px-4 py-2 backdrop-blur sm:hidden" style={{ paddingBottom: 'max(.75rem, env(safe-area-inset-bottom))' }}>
+      <a href="#diagnostico" className={btn + ' min-w-0 flex-1 !px-4 !py-2.5 text-sm'}>Solicitar diagnóstico</a>
+      <Cta message={messages.general} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/25 text-white" icon={false}><MessageCircle size={20} aria-label="Conversar pelo WhatsApp" /></Cta>
     </div>
   )
 }
@@ -317,7 +316,7 @@ function PublicApp() {
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:p-3 focus:text-black">Ir para o conteúdo</a>
       <Header />
       <main id="conteudo"><Hero /><Problem /><How /><Subjects /><Teachers /><Plans /><Faq /><Diagnostic /></main>
-      <Footer /><div className="h-20 xl:hidden" aria-hidden="true" /><StickyBar />
+      <Footer /><div className="h-16 sm:hidden" aria-hidden="true" /><StickyBar />
     </>
   )
 }
