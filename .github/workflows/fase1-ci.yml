@@ -2,6 +2,8 @@ name: Aegis - verificacao da Fase 1
 on:
   push:
     branches: [entrega-admin-etapa1, desenvolvimento-portal-responsavel, desenvolvimento-mvp-20261012]
+  pull_request:
+    branches: [desenvolvimento-mvp-20261012]
   workflow_dispatch:
 jobs:
   verificar:
