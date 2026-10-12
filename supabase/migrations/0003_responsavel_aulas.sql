@@ -4,6 +4,24 @@ begin;
 alter table public.guardians add column auth_user_id uuid unique references auth.users(id) on delete set null;
 create index guardians_auth_user_idx on public.guardians(auth_user_id);
 
+-- A Aegis envia convite pelo Supabase Auth; esta funcao apenas vincula
+-- uma conta existente, com e-mail confirmado, ao responsavel cadastrado.
+create function public.aegis_link_guardian(p_guardian_id uuid) returns boolean
+language plpgsql security definer set search_path='' as $
+declare v_email text; v_user uuid;
+begin
+ if not (select public.is_admin()) then raise exception 'Sem permissao' using errcode='42501'; end if;
+ select g.email into v_email from public.guardians g where g.id=p_guardian_id and g.active for update;
+ if v_email is null then return false; end if;
+ select u.id into v_user from auth.users u where lower(btrim(u.email))=lower(btrim(v_email)) and u.email_confirmed_at is not null;
+ if v_user is null then return false; end if;
+ update public.guardians set auth_user_id=v_user where id=p_guardian_id;
+ return true;
+end;
+$;
+revoke all on function public.aegis_link_guardian(uuid) from public,anon,authenticated;
+grant execute on function public.aegis_link_guardian(uuid) to authenticated;
+
 -- Uma pessoa responsavel tem acesso somente ao grupo ao qual esta vinculada.
 create function public.aegis_is_guardian_of(p_family uuid) returns boolean
 language sql stable security definer set search_path='' as $$
