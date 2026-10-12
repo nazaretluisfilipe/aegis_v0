@@ -112,7 +112,7 @@ test('o título principal tem escala responsiva sem quebra forçada de palavras'
  assert.doesNotMatch(css,/h1, h2, h3, h4 \{ overflow-wrap: anywhere; \}/)
  assert.match(css,/word-break: normal/)
  assert.match(home,/\[overflow-wrap:normal\]/)
- assert.match(home,/text-\[clamp\(1\.625rem,8\.3vw,2\.25rem\)\]/)
+ assert.match(home,/text-\[clamp\(1\.325rem,8\.3vw,2\.25rem\)\]/)
 })
 test('CTA móvel não duplica o acesso ao responsável',async()=>{
  const source=await read('src/App.tsx')
