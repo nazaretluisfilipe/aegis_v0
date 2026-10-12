@@ -1,8 +1,10 @@
 import {createContext,useContext,useEffect,useState,type ReactNode} from 'react'
 import {supabaseAdmin as db} from './admin/supabaseAdmin'
+import {plans as approvedPlans, singleLesson} from './config'
 export type PublicPlan={id:string;label:string;lessons:number;price:number;note:string;featured:boolean}
 export type SiteContent={heroTitle:string;heroDescription:string;whatsapp:string;email:string;plansVisible:boolean;faqVisible:boolean;plans:PublicPlan[];faq:{question:string;answer:string}[]}
-export const defaultContent:SiteContent={heroTitle:'O aluno não precisa de mais uma aula. Precisa de um acompanhamento.',heroDescription:'Aulas individuais, professores selecionados e acompanhamento da evolução do aluno em um único serviço.',whatsapp:'',email:'',plansVisible:false,faqVisible:true,plans:[],faq:[{question:'Como funciona o acompanhamento?',answer:'Conversamos com a família, organizamos as aulas e acompanhamos a evolução do aluno.'},{question:'As aulas são individuais?',answer:'Sim. As aulas são online e individuais.'}]}
+const defaultPlans:PublicPlan[]=[{id:'avulsa',label:singleLesson.label,lessons:singleLesson.lessons,price:singleLesson.price,note:'Aula individual de acompanhamento, sem compromisso mensal.',featured:false},...approvedPlans.map(p=>({...p,featured:Boolean(p.featured)}))]
+export const defaultContent:SiteContent={heroTitle:'O aluno não precisa de mais uma aula. Precisa de um acompanhamento.',heroDescription:'Aulas individuais, professores selecionados e acompanhamento da evolução do aluno em um único serviço.',whatsapp:'',email:'',plansVisible:true,faqVisible:true,plans:defaultPlans,faq:[{question:'Como funciona o acompanhamento?',answer:'Conversamos com a família, organizamos as aulas e acompanhamos a evolução do aluno.'},{question:'As aulas são individuais?',answer:'Sim. As aulas são online e individuais.'}]}
 export function validContent(value:unknown):value is SiteContent{
  if(!value||typeof value!=='object')return false
  const c=value as SiteContent
