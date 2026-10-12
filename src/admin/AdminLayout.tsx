@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Users, CreditCard, CalendarDays, FileText, Settings, LogOut, Menu, X, Clock3, History, type LucideIcon } from 'lucide-react'
+import { LayoutDashboard, Users, CreditCard, CalendarDays, FileText, Settings, LogOut, Menu, X, Clock3, History, FlaskConical, type LucideIcon } from 'lucide-react'
 import { useAdminAuth } from './AdminAuth'
 import { Brand, btnGhost } from './ui'
 
@@ -15,6 +15,7 @@ export const adminNav: { to: string; label: string; icon: LucideIcon; end?: bool
   { to: '/interessados', label: 'Interessados', icon: Users },
   { to: '/site', label: 'Editor do site', icon: FileText },
   { to: '/historico', label: 'Histórico', icon: History },
+  { to: '/laboratorio', label: 'Laboratório de testes', icon: FlaskConical },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ]
 
