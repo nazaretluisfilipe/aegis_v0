@@ -20,3 +20,5 @@ jobs:
         run: npm run build
       - name: Testar permissoes da etapa anterior
         run: npm run test:admin
+      - name: Testar cadastros e RLS da Fase 1
+        run: node supabase/tests/families.test.mjs
