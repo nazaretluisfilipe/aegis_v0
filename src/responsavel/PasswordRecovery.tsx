@@ -1,0 +1,11 @@
+import {useState,type FormEvent} from 'react'
+import {supabaseAdmin as db} from '../admin/supabaseAdmin'
+import {Brand,btn} from '../admin/ui'
+export default function PasswordRecovery(){
+ const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[step,setStep]=useState<'request'|'reset'>('request'),[message,setMessage]=useState(''),[busy,setBusy]=useState(false)
+ async function request(e:FormEvent){e.preventDefault();if(!db)return;setBusy(true);await db.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin+'/responsavel/recuperar'});setMessage('Se houver uma conta autorizada para esse e-mail, você receberá instruções para redefinir a senha.');setBusy(false)}
+ db?.auth.onAuthStateChange // Event handled by separate effect below
+ if(typeof window!=='undefined'&&window.location.hash.includes('type=recovery')&&step==='request')setStep('reset')
+ async function reset(e:FormEvent){e.preventDefault();if(!db||password.length<8)return;setBusy(true);const {error}=await db.auth.updateUser({password});setBusy(false);setMessage(error?'Não foi possível alterar a senha. Solicite outro link.':'Senha atualizada. Volte à área do responsável para entrar.')}
+ return <main className="min-h-screen bg-black p-6 text-white"><div className="mx-auto mt-16 max-w-md space-y-5 rounded-2xl border border-white/10 p-7"><Brand/><h1 className="text-2xl">Recuperar acesso</h1><form onSubmit={step==='request'?request:reset} className="space-y-4">{step==='request'?<label className="block">E-mail<input required type="email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-2 w-full rounded-xl border border-white/20 bg-black p-3"/></label>:<label className="block">Nova senha (mínimo 8 caracteres)<input required minLength={8} type="password" value={password} onChange={e=>setPassword(e.target.value)} className="mt-2 w-full rounded-xl border border-white/20 bg-black p-3"/></label>}<button disabled={busy||!db} className={btn}>{busy?'Aguarde...':step==='request'?'Enviar instruções':'Alterar senha'}</button></form>{message&&<p role="status" className="text-mute">{message}</p>}<a className="text-blue-300 underline" href="/responsavel">Voltar</a></div></main>
+}
