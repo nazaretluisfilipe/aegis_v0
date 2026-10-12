@@ -44,3 +44,19 @@ test('rota pública de exemplo não exige autenticação',async()=>{
  const source=await read('src/main.tsx')
  assert.match(source,/location\.pathname\.startsWith\('\/responsavel\/exemplo'\)/)
 })
+
+test('site mantém os preços aprovados dos cinco planos como configuração inicial',async()=>{
+ const source=await read('src/siteContent.tsx')
+ const central=await read('src/config.ts')
+ assert.match(source,/plansVisible:true,faqVisible:true,plans:defaultPlans/)
+ assert.match(source,/plans as approvedPlans, singleLesson/)
+ assert.match(source,/\.\.\.approvedPlans\.map/)
+ for(const amount of ['135.5','259.99','509.99','719.99','864.9']){
+  assert.ok(central.includes(amount),'Preço aprovado ausente do arquivo de configuração: '+amount)
+ }
+})
+test('editor carrega a versão publicada e preserva preços ao editar textos',async()=>{
+ const source=await read('src/admin/pages/SiteEditor.tsx')
+ assert.match(source,/all\.find\(v=>v\.published&&validContent\(v\.content\)\)/)
+ assert.match(source,/if\(published\)setForm\(published\.content\)/)
+})
