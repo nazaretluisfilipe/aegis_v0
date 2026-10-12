@@ -42,7 +42,7 @@ export default function PortalExample(){
        aria-pressed={tab===id} className={'aegis-tab min-h-11 flex-1 rounded-xl px-3 py-3 text-xs font-medium sm:flex-none sm:px-4 sm:text-sm '+(tab===id?'bg-[#2F7BFF]/20 text-white ring-1 ring-[#2F7BFF]/50':'text-white/60 hover:bg-white/10 hover:text-white')}>
        {label}</button>)}
    </nav>
-   {tab==='inicio'&&<>
+   {tab==='inicio'&&<div className="aegis-tab-panel space-y-4">
     <section className="grid gap-4 sm:grid-cols-3">
      <div className={card}><GraduationCap size={22} className="text-[#3b9ce2]"/><p className="mt-4 text-sm text-white/60">Estudante acompanhado</p><b className="mt-1 block text-xl">Lucas Silva</b><p className="text-sm text-white/50">8º ano · exemplo</p></div>
      <div className={card}><BookOpen size={22} className="text-[#3b9ce2]"/><p className="mt-4 text-sm text-white/60">Saldo de aulas</p><b className="mt-1 block text-3xl">7 <span className="text-base font-normal text-white/60">de 8</span></b><p className="text-sm text-white/50">1 realizada · 1 agendada · 1 cancelada</p></div>
@@ -60,8 +60,8 @@ export default function PortalExample(){
       <button type="button" onClick={()=>setTab('relatorios')} className="mt-5 text-sm text-blue-300 underline underline-offset-4">Ler relatório de exemplo</button>
      </section>
     </div>
-   </>}
-   {tab==='agenda'&&<section className="space-y-4">
+   </div>}
+   {tab==='agenda'&&<section className="aegis-tab-panel space-y-4">
     <div><h2 className="font-serif text-2xl">Agenda e histórico de aulas</h2><p className="mt-2 text-sm text-white/60">Exemplos de aula agendada, realizada e cancelada.</p></div>
     {lessons.map(lesson=><article className={card} key={lesson.id}>
      <div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-lg font-medium">{lesson.subject} · Lucas Silva</h3>
@@ -71,7 +71,7 @@ export default function PortalExample(){
      {lesson.status==='scheduled'&&<p className="mt-3 flex items-center gap-2 text-xs text-amber-200"><Clock3 size={14}/> Link do Google Meet não disponível nesta simulação.</p>}
     </article>)}
    </section>}
-   {tab==='relatorios'&&<section className="space-y-4">
+   {tab==='relatorios'&&<section className="aegis-tab-panel space-y-4">
     <div><h2 className="font-serif text-2xl">Acompanhamento educacional</h2><p className="mt-2 text-sm text-white/60">Conteúdos e observações produzidos exclusivamente para ilustrar o formato do portal.</p></div>
     <div className="grid gap-4 sm:grid-cols-3">
      <div className={card}><p className="text-sm text-white/60">Relatórios de exemplo</p><p className="mt-2 text-3xl font-semibold">1</p></div>
