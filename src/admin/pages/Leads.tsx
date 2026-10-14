@@ -6,7 +6,8 @@ import {PageHeader,btn,btnGhost} from '../ui'
 type Lead={
  id:string;guardian_name:string;email:string;phone:string;student_name:string;school_grade:string;
  subjects:string;goal:string;status:string;created_at:string;admin_notes:string;follow_up_at:string|null;
- converted_family_id:string|null;is_demo:boolean
+ converted_family_id:string|null;is_demo:boolean;
+ student_age:number|null;school:string|null;difficulties:string|null;availability:string|null;frequency:string|null;notes:string|null
 }
 const stages:Record<string,string>={new:'Novo',contacted:'Contatado',qualified:'Qualificado',proposal:'Proposta enviada',converted:'Convertido',closed:'Encerrado'}
 const activeStages=['new','contacted','qualified','proposal','closed']
@@ -24,7 +25,7 @@ export default function Leads(){
  async function load(){
   if(!db)return
   setLoading(true)
-  const r=await db.from('lead_requests').select('id,guardian_name,email,phone,student_name,school_grade,subjects,goal,status,created_at,admin_notes,follow_up_at,converted_family_id,is_demo').order('created_at',{ascending:false}).limit(200)
+  const r=await db.from('lead_requests').select('id,guardian_name,email,phone,student_name,school_grade,subjects,goal,status,created_at,admin_notes,follow_up_at,converted_family_id,is_demo,student_age,school,difficulties,availability,frequency,notes').order('created_at',{ascending:false}).limit(200)
   setLoading(false)
   if(r.error){setError('Não foi possível carregar os interessados.');return}
   setRows((r.data||[]) as Lead[])
@@ -105,6 +106,14 @@ export default function Leads(){
     </div>
     <p className="text-sm">{l.student_name} · {l.school_grade} · {l.subjects}</p>
     <p className="whitespace-pre-wrap text-sm text-mute">{l.goal}</p>
+    {(l.student_age!==null || l.school || l.frequency || l.availability || l.difficulties || l.notes) && <div className="space-y-1 rounded-xl border border-white/10 p-3 text-sm text-mute">
+      {l.student_age!==null&&<p>Idade: {l.student_age}</p>}
+      {l.school&&<p>Escola: {l.school}</p>}
+      {l.frequency&&<p>Frequência: {l.frequency}</p>}
+      {l.availability&&<p>Disponibilidade: {l.availability}</p>}
+      {l.difficulties&&<p className="whitespace-pre-wrap">Dificuldades: {l.difficulties}</p>}
+      {l.notes&&<p className="whitespace-pre-wrap">Informações adicionais: {l.notes}</p>}
+    </div>}
     {l.admin_notes&&<p className="whitespace-pre-wrap rounded-xl border border-white/10 p-3 text-sm">Notas: {l.admin_notes}</p>}
     <p className="text-xs text-mute">Recebido em {showDate(l.created_at)}{l.follow_up_at?' · Retorno em '+showDate(l.follow_up_at):''}</p>
     <div className="flex flex-wrap items-center gap-2">
