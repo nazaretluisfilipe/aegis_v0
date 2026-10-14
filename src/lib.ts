@@ -53,6 +53,12 @@ export async function submitLead(l: Lead): Promise<SubmitResult> {
       school_grade: l.grade.trim(),
       subjects: l.subjects.join(', '),
       goal: l.goal.trim(),
+      student_age: l.age.trim() ? Number(l.age.trim()) : null,
+      school: l.school.trim(),
+      difficulties: l.difficulties.trim(),
+      availability: l.availability.trim(),
+      frequency: l.frequency.trim(),
+      notes: l.notes.trim(),
       consent: l.consent
     })
     return error ? 'error' : 'sent'
