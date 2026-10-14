@@ -1,12 +1,20 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/landing.html"
+      "source": "/admin",
+      "destination": "/portal.html"
     },
     {
-      "source": "/((?!assets/|landing.html|favicon.svg|robots.txt|sitemap.xml).*)",
-      "destination": "/index.html"
+      "source": "/admin/:path*",
+      "destination": "/portal.html"
+    },
+    {
+      "source": "/responsavel",
+      "destination": "/portal.html"
+    },
+    {
+      "source": "/responsavel/:path*",
+      "destination": "/portal.html"
     }
   ],
   "headers": [
