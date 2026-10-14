@@ -56,7 +56,7 @@ function Header() {
         <div ref={progressRef} className="h-full w-full origin-left scale-x-0 bg-[#6AB0FF]" />
       </div>
       <Wrap className="flex h-[70px] items-center justify-between sm:h-[80px]">
-        <a href="/" aria-label="Aegis Educational, início"><Brand className="text-lg sm:text-2xl" compact /></a>
+        <a href="/" aria-label="Aégis Educational, início"><Brand className="text-lg sm:text-2xl" compact /></a>
         <nav aria-label="Principal" className="hidden items-center gap-4 xl:flex">
           {nav.map(([n, h]) => <a key={h} href={h} className="text-sm text-white/70 hover:text-[#3b9ce2] transition-colors">{n}</a>)}
 <a href="/responsavel" className={btnGhost+' !px-4 !py-2.5'}><LogIn size={15} aria-hidden />Acessar portal</a>
@@ -80,7 +80,7 @@ function Hero() {
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.7) 38%, rgba(0,0,0,.15) 75%, rgba(0,0,0,0) 100%), linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,0) 25%), linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 12%)' }} />
       <Wrap className="relative z-10 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)] lg:items-center lg:gap-10 xl:gap-14">
         <div className="min-w-0">
-          <Eyebrow>Aegis Educational · Acompanhamento de Elite</Eyebrow>
+          <Eyebrow>Aégis Educational · Acompanhamento de Elite</Eyebrow>
           <h1 className="aegis-intro mt-5 max-w-3xl break-normal text-[clamp(1.325rem,8.3vw,2.25rem)] leading-[1.13] [overflow-wrap:normal] sm:text-[clamp(3rem,6vw,3.75rem)] lg:text-[clamp(2.9rem,4.4vw,3.5rem)] xl:text-[3.65rem] font-bold">
             {content.heroTitle}
           </h1>
@@ -151,7 +151,7 @@ function Teachers() {
     <section data-aegis-reveal id="professores" className="border-y border-line bg-[#04070f] py-20 sm:py-24"><Wrap className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">
       <h2 className="text-4xl leading-tight sm:text-5xl">Você não escolhe sozinho. Nós indicamos.</h2>
       <div className="space-y-4 text-lg leading-relaxed text-graphite">
-        <p>A Aegis Educational seleciona o professor a partir do aluno: série, disciplina, dificuldade e objetivo. Não pela primeira agenda livre.</p>
+        <p>A Aégis Educational seleciona o professor a partir do aluno: série, disciplina, dificuldade e objetivo. Não pela primeira agenda livre.</p>
         <p>Depois da conversa com a família, apresentamos o professor indicado antes da primeira aula.</p>
       </div>
     </Wrap></section>
@@ -184,7 +184,7 @@ function Plans() {
           )
         })}
       </div>
-      <p className="mt-6 text-sm text-mute">Valores informados pela Aegis Educational. Forma de pagamento e demais condições são combinadas na conversa, antes de qualquer cobrança.</p>
+      <p className="mt-6 text-sm text-mute">Valores informados pela Aégis Educational. Forma de pagamento e demais condições são combinadas na conversa, antes de qualquer cobrança.</p>
     </Wrap></section>
   )
 }
@@ -195,7 +195,7 @@ const faq: [string, string][] = [
   ['As aulas são individuais?', 'Sim. Cada aula é exclusiva do aluno com o professor.'],
   ['Como são as aulas?', 'As aulas são online, por videochamada.'],
   ['Preciso assinar algum contrato antes de conversar?', 'Não. O diagnóstico e a conversa inicial vêm antes de qualquer contratação.'],
-  ['O que a Aegis Educational faz com os dados que eu informo?', 'Usamos apenas para entender o aluno e entrar em contato com você. Veja a Política de Privacidade.'],
+  ['O que a Aégis Educational faz com os dados que eu informo?', 'Usamos apenas para entender o aluno e entrar em contato com você. Veja a Política de Privacidade.'],
 ]
 function Faq() {
   const content=useSiteContent()
@@ -323,7 +323,7 @@ function Privacy() {
         <p><b>Quais dados coletamos.</b> No formulário de diagnóstico: nome, WhatsApp e e-mail do responsável; nome, série, idade (opcional), escola (opcional), disciplina, objetivo, dificuldades, disponibilidade e observações sobre o aluno.</p>
         <p><b>Para que usamos.</b> Exclusivamente para entender o caso do aluno, entrar em contato com o responsável e propor o acompanhamento. Pedimos só o necessário e o consentimento do responsável antes do envio.</p>
         <p><b>Onde ficam.</b> Os dados são armazenados em sistemas de acesso restrito da equipe, incluindo o Supabase, para atendimento e gestão do acompanhamento educacional. Ao continuar pelo WhatsApp, a conversa passa a seguir as regras daquele serviço.</p>
-        <p><b>Seus direitos (LGPD).</b> O responsável pode pedir acesso, correção ou exclusão dos dados dele e do aluno, ou retirar o consentimento, a qualquer momento{site.email ? <>, pelo e-mail <a className="underline" href={`mailto:${site.email}`}>{site.email}</a></> : ' pelos canais de contato da Aegis Educational'}.</p>
+        <p><b>Seus direitos (LGPD).</b> O responsável pode pedir acesso, correção ou exclusão dos dados dele e do aluno, ou retirar o consentimento, a qualquer momento{site.email ? <>, pelo e-mail <a className="underline" href={`mailto:${site.email}`}>{site.email}</a></> : ' pelos canais de contato da Aégis Educational'}.</p>
         <p className="rounded-sm border border-line bg-white/[0.03] p-4 text-sm text-mute">Revisão jurídica pendente: antes da publicação, este texto deve ser revisado por advogado e completado com a razão social, o CNPJ e o encarregado de dados da empresa.</p>
       </div>
     </Wrap></main>
