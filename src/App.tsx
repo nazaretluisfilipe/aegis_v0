@@ -1,5 +1,5 @@
 import {SiteContentProvider,useSiteContent} from './siteContent'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ArrowRight, Check, Loader2, Menu, MessageCircle, X, LogIn, Eye } from 'lucide-react'
 import { site, messages, subjects, plans, singleLesson, brl } from './config'
 import { wa, emptyLead, validate, submitLead, leadToWhatsApp, type Lead, type SubmitResult } from './lib'
@@ -14,9 +14,9 @@ const Eyebrow = ({ children, light }: { children: ReactNode; light?: boolean }) 
 
 
 /** Marca provisória, só tipografia. Para trocar pela logo definitiva: ponha /public/logo.svg e defina LOGO_SRC. */
-const LOGO_SRC = ''
+const LOGO_SRC = '/aegis-logo-dark.svg'
 function Brand({ className = 'text-2xl', compact=false }: { className?: string; compact?: boolean }) {
-  if (LOGO_SRC) return <img src={LOGO_SRC} alt={site.name} className="h-8 w-auto" />
+  if (LOGO_SRC) return <img src={LOGO_SRC} alt={site.name} className={compact ? "block h-[24px] w-auto max-w-[43vw] object-contain object-left sm:h-[34px] sm:max-w-none lg:h-[38px]" : "block h-8 w-auto max-w-full"} />
   return <span className={`font-serif tracking-tight whitespace-nowrap ${className}`}>Aégis<span className={compact ? 'hidden text-brass sm:inline' : 'text-brass'}> Educational</span></span>
 }
 
@@ -30,10 +30,32 @@ const nav: [string, string][] = [['Como funciona', '#como-funciona'], ['Discipli
 
 function Header() {
   const [open, setOpen] = useState(false)
+  const progressRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+      const progress = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`
+    }
+    const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(update) }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [])
   useEffect(()=>{if(!open)return;const onEscape=(e:KeyboardEvent)=>{if(e.key==='Escape')setOpen(false)};document.addEventListener('keydown',onEscape);return()=>document.removeEventListener('keydown',onEscape)},[open])
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur">
-      <Wrap className="flex h-16 items-center justify-between">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-50 h-[2px] bg-white/[0.04]">
+        <div ref={progressRef} className="h-full w-full origin-left scale-x-0 bg-[#6AB0FF]" />
+      </div>
+      <Wrap className="flex h-[70px] items-center justify-between sm:h-[80px]">
         <a href="/" aria-label="Aegis Educational, início"><Brand className="text-lg sm:text-2xl" compact /></a>
         <nav aria-label="Principal" className="hidden items-center gap-4 xl:flex">
           {nav.map(([n, h]) => <a key={h} href={h} className="text-sm text-white/70 hover:text-[#3b9ce2] transition-colors">{n}</a>)}
