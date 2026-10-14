@@ -11,8 +11,8 @@ const WHATSAPP_NUMBER = ''
 const env = import.meta.env
 
 export const site = {
-  name: 'Aegis Educational',
-  short: 'Aegis Educational',
+  name: 'Aégis Educational',
+  short: 'Aégis Educational',
   url: (env.VITE_SITE_URL as string | undefined) ?? '',
   whatsappNumber: ((env.VITE_WHATSAPP_NUMBER as string | undefined) || WHATSAPP_NUMBER).replace(/\D/g, ''),
   email: (env.VITE_CONTACT_EMAIL as string | undefined) ?? '',
@@ -21,10 +21,10 @@ export const site = {
 
 /** Mensagens pré-preenchidas por contexto. */
 export const messages = {
-  general: 'Olá, gostaria de saber mais sobre o acompanhamento da Aegis Educational.',
-  plan: (label: string) => `Olá, tenho interesse no plano "${label}" da Aegis Educational.`,
-  single: 'Olá, tenho interesse em uma aula individual na Aegis Educational.',
-  teacher: 'Olá, sou professor(a) e gostaria de conversar sobre fazer parte da equipe da Aegis Educational.',
+  general: 'Olá, gostaria de saber mais sobre o acompanhamento da Aégis Educational.',
+  plan: (label: string) => `Olá, tenho interesse no plano "${label}" da Aégis Educational.`,
+  single: 'Olá, tenho interesse em uma aula individual na Aégis Educational.',
+  teacher: 'Olá, sou professor(a) e gostaria de conversar sobre fazer parte da equipe da Aégis Educational.',
 }
 
 export const subjects = ['Matemática', 'Física', 'Química'] as const
