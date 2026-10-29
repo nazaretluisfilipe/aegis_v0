@@ -100,11 +100,13 @@ test('menus móveis acessíveis e títulos compactos em telas pequenas',async()=
  assert.match(example,/aria-pressed=\{tab===id\}/)
 })
 
-test('marca interna não depende de logotipo ausente',async()=>{
+test('marca interna usa a logo definitiva compartilhada, sem reconstrução',async()=>{
  const source=await read('src/admin/ui.tsx')
+ const logo=await read('public/logo.svg')
  assert.doesNotMatch(source,/logo-aegis-mark\.png/)
- assert.match(source,/Aégis/)
- assert.match(source,/text-brass/)
+ assert.match(source,/src="\/logo\.svg"/)
+ assert.match(source,/alt="Aégis Educational"/)
+ assert.match(logo,/<title id="title">Aégis Educacional<\/title>/)
 })
 test('o título principal tem escala responsiva sem quebra forçada de palavras',async()=>{
  const css=await read('src/index.css')
