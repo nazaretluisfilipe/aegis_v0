@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/privacidade",
+      "destination": "/portal.html"
+    },
+    {
       "source": "/admin",
       "destination": "/portal.html"
     },
@@ -18,6 +22,45 @@
     }
   ],
   "headers": [
+    {
+      "source": "/portal.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/responsavel",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/admin",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
     {
       "source": "/admin/:path*",
       "headers": [

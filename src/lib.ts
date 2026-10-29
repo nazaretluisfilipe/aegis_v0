@@ -23,7 +23,8 @@ export function validate(l: Lead) {
   const e: Partial<Record<keyof Lead, string>> = {}
   const d = l.whatsapp.replace(/\D/g, '')
   if (l.guardianName.trim().length < 3) e.guardianName = 'Informe o nome do responsável.'
-  if (d.length < 10 || d.length > 13) e.whatsapp = 'Informe o WhatsApp com DDD.'
+  const localPhone = d.startsWith('55') && (d.length === 12 || d.length === 13) ? d.slice(2) : d
+  if (![10, 11].includes(localPhone.length) || !/^[1-9][1-9]/.test(localPhone) || /^(\d)\1+$/.test(localPhone)) e.whatsapp = 'Informe um WhatsApp válido com DDD.'
   if (!/^\S+@\S+\.\S+$/.test(l.email)) e.email = 'Informe um e-mail válido.'
   if (!l.studentName.trim()) e.studentName = 'Informe o nome do aluno.'
   if (!l.grade.trim()) e.grade = 'Informe a série ou o ano.'
