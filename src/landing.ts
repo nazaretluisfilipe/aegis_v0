@@ -41,7 +41,8 @@ if (form && status) {
       difficulties: value('difficulty'),
       availability: value('availability'),
       notes: value('notes'),
-      consent
+      consent,
+      website: value('website')
     }
 
     const errors = validate(lead)

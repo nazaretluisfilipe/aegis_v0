@@ -44,3 +44,33 @@ test('HTML pública usa rotas internas relativas', async () => {
   assert.doesNotMatch(html,/href="https:\/\/aegisedu\.com\.br\/(responsavel|privacidade)/)
   assert.match(html,/href="\/responsavel\/exemplo"/)
 })
+
+test('prévia do portal oferece cinco abas estáticas e navegação acessível', async () => {
+  const html=await read('index.html')
+  const demo=html.slice(html.indexOf('id="area-responsavel"'),html.indexOf('id="disciplinas"'))
+  assert.ok(demo.includes('Dados fictícios, apenas demonstração'))
+  for (const id of ['proxima','relatorio','evolucao','materiais','historico']) {
+    assert.ok(demo.includes('data-portal-tab="'+id+'"'),id)
+    assert.ok(demo.includes('id="portal-panel-'+id+'"'),id)
+  }
+  assert.match(html,/function selectPortalPreview\(tab,focus\)/)
+  assert.doesNotMatch(demo,/supabaseAdmin|createClient|auth\.getUser/)
+})
+test('logo original foi externalizada sem trocar o desenho e existe sitemap',async()=>{
+  const html=await read('index.html')
+  const logo=await read('public/logo.svg')
+  assert.match(logo,/<title id="title">Aégis Educacional<\/title>/)
+  assert.match(html,/src="\/logo.svg" width="1752" height="302"/)
+  assert.doesNotMatch(html,/data:image\/svg\+xml;base64/)
+  const sitemap=await read('public/sitemap.xml')
+  assert.match(sitemap,/https:\/\/aegisedu\.com\.br\/privacidade/)
+  assert.match(await read('public/robots.txt'),/Disallow: \/responsavel/)
+})
+test('política de privacidade é indexável e usa entrada pública separada',async()=>{
+  const privacy=await read('privacy.html')
+  const portal=await read('portal.html')
+  const vite=await read('vite.config.ts')
+  assert.match(privacy,/name="robots" content="index,follow"/)
+  assert.match(portal,/name="robots" content="noindex,nofollow"/)
+  assert.match(vite,/'privacy.html'/)
+})
