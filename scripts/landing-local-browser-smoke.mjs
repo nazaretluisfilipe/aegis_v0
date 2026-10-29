@@ -6,7 +6,7 @@ const browser = await chromium.launch({headless:true})
 let done=0
 const check=async(name,fn)=>{await fn();console.log('PASS',name);done++}
 try {
- for(const width of [360,1366]){
+ for(const width of [320,360,1366]){
   const ctx=await browser.newContext({viewport:{width,height:820},locale:'pt-BR',reducedMotion:'reduce'})
   const page=await ctx.newPage()
   page.setDefaultTimeout(10000)
@@ -61,7 +61,7 @@ try {
    assert.ok(fallback.startsWith('https://wa.me/554197655584?text='))
    assert.ok(new URL(fallback).searchParams.get('text')?.includes('Pessoa de Teste'))
   })
-  if(width===360){
+  if(width<=360){
    await check('menu mobile abre e fecha com Escape',async()=>{
     const menu=page.locator('#menuBtn')
     await menu.click()
