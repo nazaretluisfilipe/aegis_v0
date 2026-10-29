@@ -6,7 +6,7 @@ const browser = await chromium.launch({headless:true})
 let done=0
 const check=async(name,fn)=>{await fn();console.log('PASS',name);done++}
 try {
- for(const width of [320,360,1366]){
+ for(const width of [320,360,375,390,768,1024,1366]){
   const ctx=await browser.newContext({viewport:{width,height:820},locale:'pt-BR',reducedMotion:'reduce'})
   const page=await ctx.newPage()
   page.setDefaultTimeout(10000)
@@ -24,6 +24,17 @@ try {
    assert.ok((await page.locator('img[src="/logo.svg"]').count())>=2)
    const dimensions=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,body:document.documentElement.scrollWidth}))
    assert.ok(dimensions.body<=dimensions.viewport+3,JSON.stringify(dimensions))
+   const title=await page.locator('main h1').first().evaluate(el=>{
+    const textNode=[...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE && n.textContent?.includes('acompanhamento'))
+    if(!textNode)return null
+    const start=textNode.textContent.indexOf('acompanhamento')
+    const range=document.createRange()
+    range.setStart(textNode,start)
+    range.setEnd(textNode,start+'acompanhamento'.length)
+    return {right:Math.max(...[...range.getClientRects()].map(r=>r.right)),vw:document.documentElement.clientWidth}
+   })
+   if(title)assert.ok(title.right<=title.vw+2,'Título cortado em '+width+'px: '+JSON.stringify(title))
+
   })
   await check('cinco abas da demonstração '+width+'px',async()=>{
    await page.locator('[data-portal-tab="materiais"]').click()
