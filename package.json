@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node supabase/tests/admin.test.mjs && node supabase/tests/families.test.mjs && node supabase/tests/operations.test.mjs && node --test supabase/tests/portal-contract.test.mjs && node --test scripts/public-contract.test.mjs"
+    "test": "node supabase/tests/admin.test.mjs && node supabase/tests/families.test.mjs && node supabase/tests/operations.test.mjs && node --test supabase/tests/portal-contract.test.mjs && node --test scripts/public-contract.test.mjs && node --test scripts/lead-api.test.mjs && node --test scripts/portal-ui-contract.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "check:syntax": "node --check api/diagnostico.js && node --check scripts/lead-api.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.117.3",

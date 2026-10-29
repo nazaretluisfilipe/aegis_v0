@@ -16,13 +16,14 @@ type Report={
  id:string;title:string;lesson_id:string;published_at:string|null;is_demo:boolean
 }&Record<keyof typeof labels,string>
 const field='rounded-xl border border-white/20 bg-[#080d19] px-3 py-2 text-white'
-const date=(value:string|null)=>value?new Date(value).toLocaleDateString('pt-BR'):'Data indisponível'
+const date=(value:string|null)=>value?new Date(value).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}):'Data indisponível'
 
-export default function PublishedReports({lessons,students}:{lessons:Lesson[];students:Student[]}){
+export default function PublishedReports({lessons,students,selectedStudentId=''}:{lessons:Lesson[];students:Student[];selectedStudentId?:string}){
  const [rows,setRows]=useState<Report[]>([])
  const [error,setError]=useState('')
  const [loading,setLoading]=useState(true)
- const [studentId,setStudentId]=useState('')
+ const [studentId,setStudentId]=useState(selectedStudentId)
+ useEffect(()=>{setStudentId(selectedStudentId)},[selectedStudentId])
  const [subject,setSubject]=useState('')
  const [openAll,setOpenAll]=useState(false)
  const lessonIds=lessons.map(l=>l.id).sort().join(',')

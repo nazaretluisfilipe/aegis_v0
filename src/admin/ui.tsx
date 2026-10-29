@@ -7,7 +7,7 @@ export const btnGhost = 'inline-flex min-h-11 items-center justify-center gap-2 
 export function Brand({ compact }: { compact?: boolean }) {
   return (
     <span className="inline-flex items-center gap-3">
-      <span className={'font-serif leading-none tracking-tight text-white '+(compact?'text-lg sm:text-xl':'text-xl sm:text-2xl')}>Aégis<span className="text-brass"> Educational</span></span>
+      <img src="/logo.svg" width={1752} height={302} alt="Aégis Educational" className={compact?'block h-6 w-auto max-w-[49vw] object-contain sm:h-8':'block h-8 w-auto max-w-full object-contain'} />
     </span>
   )
 }

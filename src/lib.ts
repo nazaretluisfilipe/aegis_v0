@@ -36,12 +36,27 @@ export function validate(l: Lead) {
 
 export type SubmitResult = 'sent' | 'not-configured' | 'error'
 
-/** Registra o interesse diretamente no CRM Supabase.
- * O endpoint legado externo NÃO deve ser usado: um envio bem-sucedido precisa
- * aparecer na tela administrativa de Interessados, com a mesma base de dados.
- * A confirmação é retornada somente após o INSERT terminar sem erro.
+/** Registra o diagnóstico no mesmo CRM Supabase do painel administrativo.
+ * Com Turnstile ativado, usa a função serverless protegida da Vercel.
+ * Sem as variáveis novas, mantém temporariamente o fluxo público legado;
+ * a migração e a revogação de INSERT para anon exigem validação em produção.
  */
-export async function submitLead(l: Lead): Promise<SubmitResult> {
+export async function submitLead(l: Lead, turnstileToken = ''): Promise<SubmitResult> {
+  // Ativação gradual: quando o Turnstile está configurado, o formulário público
+  // usa exclusivamente a função da Vercel. Nunca voltar ao INSERT direto se ela falhar.
+  const siteKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined)?.trim()
+  if (siteKey) {
+    if (!turnstileToken) return 'error'
+    try {
+      const response = await fetch('/api/diagnostico', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({...l,turnstileToken})
+      })
+      return response.ok ? 'sent' : 'error'
+    } catch { return 'error' }
+  }
+
   if (l.website) return 'sent' // honeypot: finge sucesso sem gravar spam
   if (Object.keys(validate(l)).length) return 'error'
   if (!db) return 'not-configured'

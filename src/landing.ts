@@ -11,6 +11,47 @@ if (form && status) {
     (document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null)?.value.trim() ?? ''
 
   let submitting = false
+  const turnstileSiteKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined)?.trim() ?? ''
+  type Turnstile = {
+    render: (selector: HTMLElement, opts: {
+      sitekey: string; action: string;
+      callback: (token: string) => void;
+      'expired-callback': () => void;
+      'error-callback': () => void
+    }) => string
+    reset: (widgetId: string) => void
+  }
+  let turnstileToken = ''
+  let widgetId: string | null = null
+  const getTurnstile = (): Turnstile | undefined =>
+    (window as Window & {turnstile?: Turnstile}).turnstile
+  const widget = document.querySelector<HTMLElement>('#turnstileWidget')
+  if (turnstileSiteKey && widget) {
+    widget.hidden = false
+    const script = document.createElement('script')
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+    script.async = true
+    script.onload = () => {
+      const turnstile = getTurnstile()
+      if (!turnstile) return
+      widgetId = turnstile.render(widget, {
+        sitekey: turnstileSiteKey,
+        action: 'diagnostico',
+        callback: token => {turnstileToken = token},
+        'expired-callback': () => {turnstileToken = ''},
+        'error-callback': () => {turnstileToken = ''}
+      })
+    }
+    script.onerror = () => {
+      if (status) status.textContent = 'Não foi possível carregar a verificação. Tente novamente ou fale pelo WhatsApp.'
+    }
+    document.head.append(script)
+  }
+  const resetChallenge = () => {
+    if (!turnstileSiteKey) return
+    turnstileToken = ''
+    if (widgetId) getTurnstile()?.reset(widgetId)
+  }
   const showWhatsAppFallback = (lead: Lead) => {
     if (!whatsappFallback) return
     const url = new URL(whatsappFallback.href)
@@ -51,6 +92,12 @@ if (form && status) {
       return
     }
 
+    if (turnstileSiteKey && !turnstileToken) {
+      status.textContent = 'Conclua a verificação de segurança antes de enviar.'
+      showWhatsAppFallback(lead)
+      return
+    }
+
     submitting = true
     if (whatsappFallback) whatsappFallback.hidden = true
     if (button) {
@@ -60,7 +107,7 @@ if (form && status) {
     status.textContent = 'Enviando sua solicitação…'
 
     try {
-      const result = await submitLead(lead)
+      const result = await submitLead(lead, turnstileToken)
       if (result === 'sent') {
         form.reset()
         status.textContent = 'Solicitação enviada com sucesso. Nossa equipe entrará em contato em breve.'
@@ -75,6 +122,7 @@ if (form && status) {
       showWhatsAppFallback(lead)
       status.textContent = 'Não foi possível enviar agora. Tente novamente ou converse pelo WhatsApp.'
     } finally {
+      resetChallenge()
       submitting = false
       if (button) {
         button.disabled = false
