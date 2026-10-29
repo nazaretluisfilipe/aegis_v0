@@ -5,7 +5,7 @@ import {Brand,btnGhost} from '../admin/ui'
 type Lesson={id:number;subject:string;date:string;teacher:string;status:'completed'|'scheduled'|'cancelled';description:string}
 const lessons:Lesson[]=[
  {id:1,subject:'Matemática',date:'10/10/2026, 15h',teacher:'Professor demonstrativo',status:'completed',description:'Frações e equações de 1º grau'},
- {id:2,subject:'Matemática',date:'15/10/2026, 15h',teacher:'Professor demonstrativo',status:'scheduled',description:'Revisão e exercícios de fixação'},
+ {id:2,subject:'Matemática',date:'05/11/2026, 15h',teacher:'Professor demonstrativo',status:'scheduled',description:'Revisão e exercícios de fixação'},
  {id:3,subject:'Física',date:'17/10/2026, 14h',teacher:'Professor demonstrativo',status:'cancelled',description:'Aula cancelada sem consumo de saldo'}
 ]
 const statuses={completed:'Realizada',scheduled:'Agendada',cancelled:'Cancelada'}
@@ -46,7 +46,7 @@ export default function PortalExample(){
     <section className="grid gap-4 sm:grid-cols-3">
      <div className={card}><GraduationCap size={22} className="text-[#3b9ce2]"/><p className="mt-4 text-sm text-white/60">Estudante acompanhado</p><b className="mt-1 block text-xl">Lucas Silva</b><p className="text-sm text-white/50">8º ano · exemplo</p></div>
      <div className={card}><BookOpen size={22} className="text-[#3b9ce2]"/><p className="mt-4 text-sm text-white/60">Saldo de aulas</p><b className="mt-1 block text-3xl">7 <span className="text-base font-normal text-white/60">de 8</span></b><p className="text-sm text-white/50">1 realizada · 1 agendada · 1 cancelada</p></div>
-     <div className={card}><CalendarDays size={22} className="text-[#3b9ce2]"/><p className="mt-4 text-sm text-white/60">Próxima aula</p><b className="mt-1 block text-xl">15 de outubro</b><p className="text-sm text-white/50">Matemática · 15h</p></div>
+     <div className={card}><CalendarDays size={22} className="text-[#3b9ce2]"/><p className="mt-4 text-sm text-white/60">Próxima aula</p><b className="mt-1 block text-xl">5 de novembro</b><p className="text-sm text-white/50">Matemática · 15h</p></div>
     </section>
     <div className="grid gap-4 lg:grid-cols-2">
      <section className={card}><h2 className="text-xl">Seu plano de acompanhamento</h2><p className="mt-2 text-sm text-white/60">[TESTE — FICTÍCIO] Plano de 8 aulas individuais</p>

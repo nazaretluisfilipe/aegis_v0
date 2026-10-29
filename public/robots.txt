@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /responsavel
+Disallow: /portal.html
+Disallow: /privacy.html
+
+Sitemap: https://aegisedu.com.br/sitemap.xml

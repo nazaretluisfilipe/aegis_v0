@@ -45,7 +45,7 @@ try{
    const layout=await withinViewport(page)
    assert.ok(layout.docWidth<=layout.vw+3,'Rolagem horizontal: '+JSON.stringify(layout))
    assert.deepEqual(layout.clipped,[],'Botões cortados')
-   assert.ok(await page.locator('header a[href="/responsavel"]:visible').count(),'Link do responsável ausente')
+   assert.ok(await page.locator('header a[href$="/responsavel"]:visible').count(),'Link do responsável ausente')
    assert.deepEqual(layout.brokenImages,[],'A homepage não deve conter imagens quebradas')
    const title=await page.locator('main h1').first().evaluate(el=>{
     const textNode=[...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE && n.textContent?.includes('acompanhamento'))

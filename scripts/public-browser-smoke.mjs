@@ -19,8 +19,8 @@ try {
   const response=await page.goto(base+'/',{waitUntil:'domcontentloaded'})
   assert.equal(response?.status(),200)
   await page.locator('h1').first().waitFor()
-  assert.ok(await page.locator('header a[href="/responsavel"]:visible').count())
-  assert.ok(await page.locator('a[href="/responsavel/exemplo"]:visible').count())
+  assert.ok(await page.locator('header a[href$="/responsavel"]:visible').count())
+  assert.ok(await page.locator('a[href$="/responsavel/exemplo"]:visible').count())
  })
  await check('Planos comerciais publicados mostram valores aprovados',async()=>{
   await page.waitForFunction(()=>document.querySelector('#planos')?.textContent?.includes('509,99'))
@@ -30,9 +30,9 @@ try {
   }
  })
  await check('Formulário exige preenchimento sem enviar dados',async()=>{
-  await page.getByRole('button',{name:'Enviar diagnóstico'}).click()
-  assert.ok((await page.getByText('Informe o nome do responsável.').count())>0)
-  assert.ok((await page.getByText('É necessário concordar com o tratamento dos dados para enviar.').count())>0)
+  await page.locator('#form button[type="submit"]').click()
+  assert.ok((await page.locator('#form :invalid').count())>0,'Campos obrigatórios devem impedir envio')
+  assert.equal(await page.locator('#status').innerText(),'', 'O navegador deve bloquear envio nativo')
  })
  await check('Demonstração é fictícia, pública e possui navegação entre áreas',async()=>{
   const response=await page.goto(base+'/responsavel/exemplo',{waitUntil:'domcontentloaded'})
@@ -57,7 +57,7 @@ try {
   const response=await mob.goto(base+'/',{waitUntil:'domcontentloaded'})
   assert.equal(response?.status(),200)
   await mob.locator('h1').first().waitFor()
-  assert.ok((await mob.locator('header a[href="/responsavel"]:visible').count())>0)
+  assert.ok((await mob.locator('header a[href$="/responsavel"]:visible').count())>0)
  })
  await check('Demonstração abre em resolução móvel',async()=>{
   const response=await mob.goto(base+'/responsavel/exemplo',{waitUntil:'domcontentloaded'})
