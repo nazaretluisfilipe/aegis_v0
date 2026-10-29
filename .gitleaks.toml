@@ -1,0 +1,15 @@
+title = "Aégis — revisão de segredos"
+
+[extend]
+useDefault = true
+
+# Chaves sb_publishable são públicas por definição. Restringimos a exceção
+# à linha do arquivo de exemplo histórico, sem dispensar outras varreduras.
+[[rules]]
+id = "generic-api-key"
+  [[rules.allowlists]]
+  description = "Chave pública Supabase no arquivo de exemplo (não é segredo)"
+  condition = "AND"
+  paths = ['''^\.env\.example$''']
+  regexTarget = "line"
+  regexes = ['''^VITE_SUPABASE_ANON_KEY=sb_publishable_[A-Za-z0-9_-]+\s*$''']
