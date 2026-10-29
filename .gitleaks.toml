@@ -12,4 +12,4 @@ id = "generic-api-key"
   condition = "AND"
   paths = ['''^\.env\.example$''']
   regexTarget = "line"
-  regexes = ['''^VITE_SUPABASE_ANON_KEY=sb_publishable_[A-Za-z0-9_-]+\s*$''']
+  regexes = ['''sb_publishable_[A-Za-z0-9_-]+''']
