@@ -30,7 +30,7 @@ test('HTML público possui campos nomeados e limites de tamanho', async () => {
 })
 test('Rotas restritas possuem cabeçalhos e tela de privacidade tem rewrite', async () => {
   const config=JSON.parse(await read('vercel.json'))
-  assert.ok(config.rewrites.some(x=>x.source==='/privacidade' && x.destination==='/portal.html'))
+  assert.ok(config.rewrites.some(x=>x.source==='/privacidade' && x.destination==='/privacy.html'))
   for (const route of ['/admin','/admin/:path*','/responsavel','/responsavel/:path*','/portal.html']) {
     const rule=config.headers.find(x=>x.source===route)
     assert.ok(rule,'Cabeçalhos faltando em '+route)
