@@ -37,7 +37,7 @@ for(const {label,engine,device} of cases){
   assert.equal(await page.locator('#portal-panel-evolucao').isVisible(),true,label+': evolução')
   await page.locator('[data-portal-tab="historico"]').click()
   assert.ok((await page.locator('#portal-panel-historico').innerText()).includes('Aula cancelada'))
-  await page.screenshot({path:'artifacts/responsive/'+label+'.png',fullPage:true})
+  await page.screenshot({path:'artifacts/responsive/'+label+'.png',fullPage:false})
   assert.deepEqual(failures,[],label+': erro JS '+failures.join(' | '))
   console.log('PASS '+label+': menu, abas, largura e console — '+dimension.viewport+' CSS px')
   await context.close()
