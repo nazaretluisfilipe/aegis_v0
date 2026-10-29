@@ -59,7 +59,7 @@ try {
    assert.equal(await page.locator('#name').inputValue(),'Pessoa de Teste')
    const fallback=await page.locator('#formWhatsappFallback').getAttribute('href')
    assert.ok(fallback.startsWith('https://wa.me/554197655584?text='))
-   assert.ok(decodeURIComponent(fallback).includes('Pessoa de Teste'))
+   assert.ok(new URL(fallback).searchParams.get('text')?.includes('Pessoa de Teste'))
   })
   if(width===360){
    await check('menu mobile abre e fecha com Escape',async()=>{
